@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise 2: Research &amp; Design Outputs</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#0A0E1A;color:#F9FAFB;line-height:1.7;padding:40px 20px}
+  .container{max-width:900px;margin:0 auto}
+  a{color:#6366F1}
+  h1{font-size:28px;margin-bottom:4px}
+  .subtitle{color:#9CA3AF;margin-bottom:24px}
+  h2{font-size:20px;margin:32px 0 12px;color:#A78BFA;border-bottom:1px solid #1F2937;padding-bottom:8px}
+  h3{font-size:16px;margin:20px 0 8px;color:#D1D5DB}
+  p,li{font-size:14px;margin-bottom:8px;color:#D1D5DB}
+  ul,ol{padding-left:24px;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:13px}
+  th,td{border:1px solid #1F2937;padding:8px 10px;text-align:left}
+  th{background:#1F2937;color:#A78BFA;font-weight:600}
+  td{color:#D1D5DB}
+  pre{background:#1E293B;border:1px solid #334155;border-radius:6px;padding:16px;overflow-x:auto;font-size:12px;line-height:1.5;margin:12px 0;color:#E2E8F0;white-space:pre}
+  details{background:#111827;border:1px solid #1F2937;border-radius:6px;margin:12px 0;padding:12px 16px}
+  summary{cursor:pointer;color:#6366F1;font-weight:600;font-size:14px}
+  .card{background:#111827;border:1px solid #1F2937;border-radius:8px;padding:16px;margin:12px 0}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;margin-right:6px}
+  .high{background:rgba(239,68,68,0.15);color:#F87171}
+  .med{background:rgba(234,179,8,0.15);color:#FACC15}
+  .low{background:rgba(34,197,94,0.15);color:#4ADE80}
+  @media print{body{background:#fff;color:#000}pre{background:#f5f5f5;color:#000;border-color:#ddd}th{background:#eee;color:#333}td,p,li{color:#333}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<p><a href="index.html">&larr; Back to Home</a></p>
+<h1>Exercise 2: Research &amp; Design Outputs</h1>
+<p class="subtitle">DeepSpace &mdash; Market Intelligence, Architecture, and Blueprint</p>
+
+<h2>1. Market Brief &mdash; Competitor Analysis</h2>
+<p>The Yellow Researcher analyzed 8 productivity apps, rating each on configuration complexity and onboarding friction (1-10 scale).</p>
+
+<table>
+<tr><th>App</th><th>Value Prop</th><th>Config Complexity</th><th>Onboarding Friction</th><th>What Works</th><th>Key Complaints</th></tr>
+<tr><td>Cold Turkey</td><td>Hardcore unbypassable blocker</td><td>6/10</td><td>5/10</td><td>Frozen Turkey mode, one-time purchase</td><td>Mac unreliable, no cross-device sync</td></tr>
+<tr><td>Freedom</td><td>Cross-platform distraction blocker (3M+ users)</td><td>5/10</td><td>4/10</td><td>Cross-device sync, predefined lists</td><td>Locked Mode too rigid, $40/yr</td></tr>
+<tr><td>Forest</td><td>Gamified Pomodoro (top app in 136 countries)</td><td>3/10</td><td>2/10</td><td>Emotional gamification, real trees planted</td><td>Can't pause without killing tree</td></tr>
+<tr><td>Focus@Will</td><td>Neuroscience-backed focus music</td><td>4/10</td><td>5/10</td><td>Curated music channels</td><td>Deceptive billing, questionable science</td></tr>
+<tr><td>Serene</td><td>Mac-only deep work app</td><td>7/10</td><td>7/10</td><td>Combines blocking + goals + audio</td><td>Too many pre-work config steps</td></tr>
+<tr><td>Flow</td><td>Minimalist Pomodoro for Apple (500K+ users)</td><td>3/10</td><td>2/10</td><td>Beautiful minimalist design, Dynamic Island</td><td>Apple-only, limited blocking</td></tr>
+<tr><td>Opal</td><td>Premium screen time control ($100/yr)</td><td>4/10</td><td>3/10</td><td>Three-tier enforcement, gorgeous UI</td><td>Extremely expensive</td></tr>
+<tr><td>Endel</td><td>AI-powered adaptive soundscapes</td><td>2/10</td><td>2/10</td><td>Tap and play, AI handles personalization</td><td>Free version limited to 10 min</td></tr>
+</table>
+
+<p><strong>Key finding:</strong> Apps with lowest friction (Forest 2/10, Flow 2/10, Endel 2/10) have the largest user bases. Highest friction (Serene 7/10) has the smallest. This directly validates DeepSpace's zero-config philosophy.</p>
+
+<h2>2. Steelman Against Complexity</h2>
+<div class="card">
+<h3>Core Thesis</h3>
+<p><strong>"Configuration IS the distraction."</strong> Every settings screen consumes the exact cognitive resource (executive function) that the user is trying to protect. The app designed to save your focus destroys it before you begin.</p>
+
+<h3>Psychological Principles</h3>
+<table>
+<tr><th>Principle</th><th>Application to DeepSpace</th></tr>
+<tr><td>Decision Fatigue</td><td>Focus app config depletes the same executive function pool needed for deep work. Zero-config preserves cognitive resources.</td></tr>
+<tr><td>Paradox of Choice</td><td>More options = decision paralysis. One-click eliminates the paradox entirely.</td></tr>
+<tr><td>Zeigarnik Effect</td><td>Incomplete config creates persistent cognitive load. Zero config = zero Zeigarnik tension.</td></tr>
+<tr><td>Implementation Intentions</td><td>AI-generated sprint tasks serve as automatic implementation intentions, releasing cognitive tension.</td></tr>
+<tr><td>Cognitive Load Theory</td><td>Working memory holds 4&plusmn;1 chunks. Minimize extraneous load (config) to maximize germane load (deep work).</td></tr>
+<tr><td>Flow State Preconditions</td><td>Flow requires clear goals. Config inserts meta-goals before real goals. One-click provides clarity.</td></tr>
+<tr><td>Ego Depletion</td><td>Willpower spent on config decisions depletes self-control needed for focus.</td></tr>
+</table>
+
+<p><strong>Key data point:</strong> It takes 23 minutes 15 seconds to refocus after an interruption. If 5 min of app config precedes a 25-min sprint, the user may not achieve full focus until minute 10 &mdash; losing 40% of productive time.</p>
+</div>
+
+<h2>3. Lateral Triggers for Designer</h2>
+<table>
+<tr><th>ID</th><th>Pattern</th><th>Insight</th></tr>
+<tr><td>LT-001</td><td>Endel's Zero-Config Model</td><td>AI handles personalization in backend so frontend can be just a play button. The AI sprint engine IS the configuration layer.</td></tr>
+<tr><td>LT-002</td><td>Duolingo's 60s-to-Value</td><td>First sprint within 30 seconds of launch. No account creation, no onboarding. The first sprint IS the onboarding.</td></tr>
+<tr><td>LT-003</td><td>Forest's Emotional Stakes</td><td>Cosmic visualization that expands during focus, collapses on distraction. Gives the space theme functional purpose.</td></tr>
+<tr><td>LT-004</td><td>Opal's Adaptive Enforcement</td><td>Auto-escalating block strength based on streak, instead of user-configured enforcement levels.</td></tr>
+<tr><td>LT-005</td><td>Flow's Ambient Timer</td><td>Minimal floating timer element (always-on-top, corner of screen) for ambient temporal awareness.</td></tr>
+</table>
+
+<h2>4. System Architecture</h2>
+<p>The Red-Orange Designer produced a 5-component architecture with central Event Bus communication:</p>
+
+<pre>
++-------------------------------------------------------------+
+|                     DeepSpace App Shell                      |
+|                                                              |
+|  +----------+  +--------------+  +------------------+       |
+|  | UI Layer |  | Notification |  |  Tray / Daemon   |       |
+|  +----+-----+  +------+-------+  +--------+---------+       |
+|       |               |                   |                  |
+|  +----v---------------v-------------------v-----------+      |
+|  |              Event Bus / Message Layer              |      |
+|  +--+----------+---------------+--------------+-------+      |
+|     |          |               |              |              |
+|  +--v---+ +---v-----------+ +-v----------+ +-v--------+     |
+|  |Timer | |  Distraction  | | AI Sprint  | | Session  |     |
+|  |Engine| |  Blocker      | | Planner    | | Store    |     |
+|  +------+ +---------------+ +------------+ +----------+     |
++-------------------------------------------------------------+
+</pre>
+
+<h3>Components</h3>
+<table>
+<tr><th>Component</th><th>Responsibility</th><th>Key Design Decision</th></tr>
+<tr><td>Timer Engine</td><td>State machine: IDLE &rarr; FOCUSING &rarr; PAUSED &rarr; BREAK &rarr; COMPLETED</td><td>25-min default, auto-start breaks, explicit validated transitions</td></tr>
+<tr><td>Distraction Blocker</td><td>Hosts-file blocking (primary), local proxy (fallback)</td><td>Ships with default blocklist (17 domains). User never configures.</td></tr>
+<tr><td>AI Sprint Planner</td><td>LLM decomposes goals into 25-min sprint cards</td><td><strong>Timer NEVER waits for AI.</strong> Planner runs async. No API key = generic card.</td></tr>
+<tr><td>Session Store</td><td>Local-first persistence (JSON/SQLite)</td><td>Tracks sessions, streaks, settings. Atomic writes.</td></tr>
+<tr><td>Notification System</td><td>OS-native alerts at session boundaries</td><td>Subtle in-app toasts for blocked domain attempts.</td></tr>
+</table>
+
+<h2>5. UI Blueprint</h2>
+<h3>Screens</h3>
+<table>
+<tr><th>Screen</th><th>State</th><th>Key Elements</th></tr>
+<tr><td>Home</td><td>IDLE</td><td>"Start Focus" button (hero), collapsed goal input, ghost history/settings icons</td></tr>
+<tr><td>Focus</td><td>FOCUSING</td><td>Hero countdown with progress ring, sprint card, pause (Space), subtle abort (X)</td></tr>
+<tr><td>Focus (Paused)</td><td>PAUSED</td><td>Frosted glass overlay, resume button, auto-aborts after 30 min</td></tr>
+<tr><td>Break</td><td>BREAK</td><td>Lighter tone, break countdown, next sprint preview, skip break option</td></tr>
+<tr><td>Completed</td><td>COMPLETED</td><td>"Great work!", session stats, auto-dismiss 10s</td></tr>
+<tr><td>History</td><td>HISTORY</td><td>Session log, streak counter, total focus hours</td></tr>
+<tr><td>Settings</td><td>SETTINGS</td><td>Tiered disclosure: T0 always visible, T1 on interaction, T2 in settings, T3 deep settings</td></tr>
+</table>
+
+<h3>Design Tokens</h3>
+<table>
+<tr><th>Token</th><th>Value</th><th>Preview</th></tr>
+<tr><td>Background Primary</td><td>#0A0E1A</td><td style="background:#0A0E1A;width:60px">&nbsp;</td></tr>
+<tr><td>Background Secondary</td><td>#111827</td><td style="background:#111827;width:60px">&nbsp;</td></tr>
+<tr><td>Surface</td><td>#1F2937</td><td style="background:#1F2937;width:60px">&nbsp;</td></tr>
+<tr><td>Accent Focus</td><td>#6366F1</td><td style="background:#6366F1;width:60px">&nbsp;</td></tr>
+<tr><td>Accent Break</td><td>#34D399</td><td style="background:#34D399;width:60px">&nbsp;</td></tr>
+<tr><td>Accent Danger</td><td>#EF4444</td><td style="background:#EF4444;width:60px">&nbsp;</td></tr>
+<tr><td>Accent Success</td><td>#10B981</td><td style="background:#10B981;width:60px">&nbsp;</td></tr>
+</table>
+
+<h2>6. One-Click-Start Critical Path</h2>
+<div class="card">
+<pre>
+1. App launches -> loads settings (or creates defaults)
+2. Blocker checks for stale blocks from previous crash -> cleans up
+3. UI renders: single "Start Focus" button + collapsed goal field
+4. User clicks "Start Focus"
+   -> Timer starts immediately (25 min default)
+   -> Blocker activates with default blocklist
+   -> AI planner runs async in background (if goal + API configured)
+   -> Notification: "Focus session started"
+5. User is focusing. Total elapsed time: &lt; 1 second from click.
+</pre>
+<p><strong>The timer never waits for AI.</strong> The planner enriches but never blocks.</p>
+</div>
+
+<h2>7. Integrated Phase 1 Blueprint Recommendation</h2>
+<div class="card">
+<h3>Two-Stage Build Approach</h3>
+<p><strong>Stage 1 (MVP):</strong> Timer engine + distraction blocker + UI. One-click-start with zero AI dependency. Validate the core loop.</p>
+<p><strong>Stage 2 (Enhancement):</strong> Add AI sprint planner, session history, and progressive disclosure settings.</p>
+<p>This mirrors the master intent: ship the simplest thing that delivers value, then layer intelligence on top.</p>
+</div>
+
+<details>
+<summary>View Raw Source Files on GitHub</summary>
+<ul>
+<li><a href="https://github.com/JenuineProjects/deepspace-octopus/blob/master/deepspace/agent-workspaces/researcher/market-brief.json">market-brief.json</a> (Full 390-line competitive analysis)</li>
+<li><a href="https://github.com/JenuineProjects/deepspace-octopus/blob/master/deepspace/agent-workspaces/designer/system-architecture.md">system-architecture.md</a> (Full architecture document)</li>
+<li><a href="https://github.com/JenuineProjects/deepspace-octopus/blob/master/deepspace/agent-workspaces/designer/ui-schema.json">ui-schema.json</a> (Full UI blueprint with all schemas)</li>
+<li><a href="https://github.com/JenuineProjects/deepspace-octopus/blob/master/deepspace/integration/phase1-blueprint.md">phase1-blueprint.md</a> (Synthesized blueprint)</li>
+</ul>
+</details>
+
+<p style="margin-top:40px;padding-top:16px;border-top:1px solid #1F2937;font-size:12px;color:#4B5563">Jennifer, Abrek &amp; Blossom | Generated by Octopus Multi-Agent Orchestration OS | Purple Manager | Claude Opus 4.6</p>
+
+</div>
+</body>
+</html>

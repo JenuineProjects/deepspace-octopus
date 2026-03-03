@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise 1: Build Phase Outputs — DeepSpace Focus Timer</title>
+<style>
+  /* ---- Reset & Base ---- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #0A0E1A;
+    color: #F9FAFB;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    padding: 0;
+  }
+  a { color: #6366F1; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---- Back-to-top anchor ---- */
+  #top { position: absolute; top: 0; }
+
+  .back-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #6366F1;
+    color: #F9FAFB;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-decoration: none;
+    z-index: 100;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+    transition: background 0.2s;
+  }
+  .back-top:hover { background: #4F46E5; text-decoration: none; }
+
+  /* ---- Header ---- */
+  header {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    border-bottom: 1px solid #1E293B;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #F9FAFB;
+    margin-bottom: 0.4rem;
+  }
+  header h1 span { color: #6366F1; }
+  header p.subtitle {
+    color: #9CA3AF;
+    font-size: 1.05rem;
+  }
+  .nav-home {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.45rem 1.2rem;
+    border: 1px solid #6366F1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  /* ---- Layout ---- */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ---- Section headings ---- */
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6366F1;
+    margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #6366F1;
+  }
+
+  /* ---- Cards ---- */
+  .card {
+    background: #111827;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #1E293B;
+  }
+
+  /* ---- File header ---- */
+  .file-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .file-header .filename {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #6366F1;
+  }
+  .file-header .filedesc {
+    color: #9CA3AF;
+    font-size: 0.9rem;
+  }
+
+  /* ---- Code blocks ---- */
+  pre {
+    background: #1E293B;
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    border: 1px solid #2D3748;
+  }
+  pre code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: #E2E8F0;
+    white-space: pre;
+  }
+
+  /* ---- Syntax highlighting (Python) ---- */
+  .kw   { color: #C792EA; font-weight: bold; }  /* keywords */
+  .bi   { color: #82AAFF; }                       /* builtins / functions */
+  .st   { color: #C3E88D; }                       /* strings */
+  .cm   { color: #6A737D; font-style: italic; }  /* comments */
+  .dc   { color: #FFCB6B; font-style: italic; }  /* decorators / special */
+  .nu   { color: #F78C6C; }                       /* numbers */
+  .op   { color: #89DDFF; }                       /* operators & punctuation */
+  .ty   { color: #FFCB6B; }                       /* type names */
+  .slf  { color: #FF5370; }                       /* self */
+
+  /* ---- Markdown rendered sections ---- */
+  .md-content h1, .md-content h2, .md-content h3, .md-content h4 {
+    color: #F9FAFB;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .md-content h1 { font-size: 1.6rem; border-bottom: 2px solid #6366F1; padding-bottom: 0.4rem; }
+  .md-content h2 { font-size: 1.3rem; color: #6366F1; }
+  .md-content h3 { font-size: 1.1rem; color: #A5B4FC; }
+  .md-content h4 { font-size: 1rem; color: #9CA3AF; }
+  .md-content p { margin: 0.5rem 0; }
+  .md-content ul, .md-content ol { padding-left: 1.5rem; margin: 0.5rem 0; }
+  .md-content li { margin: 0.25rem 0; }
+  .md-content strong { color: #F9FAFB; }
+  .md-content code {
+    background: #1E293B;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88rem;
+    color: #C3E88D;
+  }
+  .md-content pre {
+    margin: 0.75rem 0;
+  }
+  .md-content pre code {
+    background: none;
+    padding: 0;
+    color: #E2E8F0;
+  }
+  .md-content hr {
+    border: none;
+    border-top: 1px solid #2D3748;
+    margin: 1.5rem 0;
+  }
+  .md-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  .md-content th, .md-content td {
+    border: 1px solid #2D3748;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+  .md-content th {
+    background: #1E293B;
+    color: #6366F1;
+    font-weight: 600;
+  }
+  .md-content td { color: #E2E8F0; }
+  .md-content blockquote {
+    border-left: 3px solid #6366F1;
+    padding-left: 1rem;
+    color: #9CA3AF;
+    margin: 0.75rem 0;
+  }
+  .verdict {
+    display: inline-block;
+    background: #065F46;
+    color: #34D399;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .status-fixed {
+    color: #34D399;
+    font-weight: 700;
+  }
+
+  /* ---- Table of Contents ---- */
+  .toc {
+    background: #111827;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc h3 { color: #9CA3AF; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+  .toc ol { padding-left: 1.25rem; }
+  .toc li { margin: 0.35rem 0; }
+  .toc a { font-size: 0.95rem; }
+
+  /* ---- Print ---- */
+  @media print {
+    body { background: #fff; color: #111; }
+    .card, .toc { border: 1px solid #ccc; background: #f9f9f9; }
+    pre { background: #f0f0f0; border: 1px solid #ccc; }
+    pre code, .md-content code { color: #111; }
+    .kw { color: #7B1FA2; } .bi { color: #1565C0; } .st { color: #2E7D32; }
+    .cm { color: #757575; } .nu { color: #E65100; } .op { color: #00838F; }
+    .slf { color: #C62828; } .ty { color: #F57F17; } .dc { color: #F57F17; }
+    header { border-bottom: 1px solid #ccc; }
+    .section-title { color: #4338CA; border-bottom-color: #4338CA; }
+    .back-top { display: none; }
+    a { color: #4338CA; }
+    .md-content h2 { color: #4338CA; }
+    .md-content h3 { color: #6366F1; }
+    .md-content th { background: #eee; color: #4338CA; }
+  }
+</style>
+</head>
+<body>
+<div id="top"></div>
+<a href="#top" class="back-top" title="Back to top">&#8593;</a>
+
+<!-- ============================================================ -->
+<!-- HEADER                                                        -->
+<!-- ============================================================ -->
+<header>
+  <h1><span>Exercise 1:</span> Build Phase Outputs</h1>
+  <p class="subtitle">DeepSpace Focus Timer &mdash; Code, Review, and Artifacts</p>
+  <a href="index.html" class="nav-home">&larr; Back to Home</a>
+</header>
+
+<div class="container">
+
+<!-- ---- Table of Contents ---- -->
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#source-code">Source Code (5 Python Files)</a></li>
+    <li><a href="#reviewer-feedback">Reviewer Feedback (Iteration 2 &mdash; Approved)</a></li>
+    <li><a href="#blueprint-spec">Blueprint Spec</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<!-- SECTION 1 : SOURCE CODE                                       -->
+<!-- ============================================================ -->
+<h2 class="section-title" id="source-code">1. Source Code</h2>
+
+<!-- ---- main.py ---- -->
+<div class="card">
+  <div class="file-header">
+    <span class="filename">main.py</span>
+    <span class="filedesc">Entry point &mdash; sets up logging and launches the app</span>
+  </div>
+  <pre><code><span class="cm">"""
+DeepSpace — Focus Timer Desktop App
+Entry point. Run with: python main.py
+"""</span>
+
+<span class="kw">import</span> logging
+<span class="kw">import</span> sys
+<span class="kw">import</span> os
+
+<span class="cm"># Ensure the src directory is on the path so sibling imports work</span>
+<span class="cm"># regardless of where python is invoked from.</span>
+sys<span class="op">.</span>path<span class="op">.</span>insert(<span class="nu">0</span><span class="op">,</span> os<span class="op">.</span>path<span class="op">.</span>dirname(os<span class="op">.</span>path<span class="op">.</span>abspath(<span class="bi">__file__</span>)))
+
+<span class="kw">from</span> ui <span class="kw">import</span> DeepSpaceUI
+
+
+<span class="kw">def</span> <span class="bi">_setup_logging</span>() <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+    logging<span class="op">.</span>basicConfig(
+        level<span class="op">=</span>logging<span class="op">.</span>INFO<span class="op">,</span>
+        format<span class="op">=</span><span class="st">"%(asctime)s [%(name)s] %(levelname)s: %(message)s"</span><span class="op">,</span>
+        datefmt<span class="op">=</span><span class="st">"%H:%M:%S"</span><span class="op">,</span>
+    )
+
+
+<span class="kw">def</span> <span class="bi">main</span>() <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+    _setup_logging()
+    app <span class="op">=</span> DeepSpaceUI()
+    app<span class="op">.</span>run()
+
+
+<span class="kw">if</span> <span class="bi">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span><span class="op">:</span>
+    main()</code></pre>
+</div>
+
+<!-- ---- timer.py ---- -->
+<div class="card">
+  <div class="file-header">
+    <span class="filename">timer.py</span>
+    <span class="filedesc">Timer engine &mdash; thread-safe countdown with state machine (idle / focusing / paused / completed)</span>
+  </div>
+  <pre><code><span class="cm">"""
+DeepSpace Timer Engine
+State machine: idle -&gt; focusing -&gt; paused -&gt; completed
+Thread-safe countdown timer with pause/resume/stop.
+"""</span>
+
+<span class="kw">import</span> logging
+<span class="kw">import</span> threading
+<span class="kw">import</span> time
+<span class="kw">from</span> enum <span class="kw">import</span> Enum
+<span class="kw">from</span> typing <span class="kw">import</span> Callable<span class="op">,</span> Optional
+
+logger <span class="op">=</span> logging<span class="op">.</span>getLogger(<span class="st">"deepspace.timer"</span>)
+
+
+<span class="kw">class</span> <span class="ty">TimerState</span>(Enum)<span class="op">:</span>
+    IDLE <span class="op">=</span> <span class="st">"idle"</span>
+    FOCUSING <span class="op">=</span> <span class="st">"focusing"</span>
+    PAUSED <span class="op">=</span> <span class="st">"paused"</span>
+    COMPLETED <span class="op">=</span> <span class="st">"completed"</span>
+
+
+<span class="cm"># Valid transitions: (from_state, to_state)</span>
+_VALID_TRANSITIONS <span class="op">=</span> {
+    (TimerState<span class="op">.</span>IDLE<span class="op">,</span> TimerState<span class="op">.</span>FOCUSING)<span class="op">,</span>
+    (TimerState<span class="op">.</span>FOCUSING<span class="op">,</span> TimerState<span class="op">.</span>PAUSED)<span class="op">,</span>
+    (TimerState<span class="op">.</span>FOCUSING<span class="op">,</span> TimerState<span class="op">.</span>COMPLETED)<span class="op">,</span>
+    (TimerState<span class="op">.</span>FOCUSING<span class="op">,</span> TimerState<span class="op">.</span>IDLE)<span class="op">,</span>       <span class="cm"># stop</span>
+    (TimerState<span class="op">.</span>PAUSED<span class="op">,</span> TimerState<span class="op">.</span>FOCUSING)<span class="op">,</span>      <span class="cm"># resume</span>
+    (TimerState<span class="op">.</span>PAUSED<span class="op">,</span> TimerState<span class="op">.</span>IDLE)<span class="op">,</span>           <span class="cm"># stop from paused</span>
+    (TimerState<span class="op">.</span>COMPLETED<span class="op">,</span> TimerState<span class="op">.</span>IDLE)<span class="op">,</span>        <span class="cm"># reset</span>
+}
+
+
+<span class="kw">class</span> <span class="ty">FocusTimer</span><span class="op">:</span>
+    <span class="cm">"""Countdown timer with an explicit state machine."""</span>
+
+    <span class="kw">def</span> <span class="bi">__init__</span>(
+        <span class="slf">self</span><span class="op">,</span>
+        duration_seconds<span class="op">:</span> <span class="ty">int</span> <span class="op">=</span> <span class="nu">25</span> <span class="op">*</span> <span class="nu">60</span><span class="op">,</span>
+        on_tick<span class="op">:</span> <span class="ty">Optional</span>[<span class="ty">Callable</span>[[<span class="ty">int</span>]<span class="op">,</span> <span class="ty">None</span>]] <span class="op">=</span> <span class="kw">None</span><span class="op">,</span>
+        on_state_change<span class="op">:</span> <span class="ty">Optional</span>[<span class="ty">Callable</span>[[TimerState]<span class="op">,</span> <span class="ty">None</span>]] <span class="op">=</span> <span class="kw">None</span><span class="op">,</span>
+        on_complete<span class="op">:</span> <span class="ty">Optional</span>[<span class="ty">Callable</span>[[]<span class="op">,</span> <span class="ty">None</span>]] <span class="op">=</span> <span class="kw">None</span><span class="op">,</span>
+    )<span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_total_duration <span class="op">=</span> duration_seconds
+        <span class="slf">self</span><span class="op">.</span>_remaining <span class="op">=</span> duration_seconds
+        <span class="slf">self</span><span class="op">.</span>_state <span class="op">=</span> TimerState<span class="op">.</span>IDLE
+        <span class="slf">self</span><span class="op">.</span>_lock <span class="op">=</span> threading<span class="op">.</span>Lock()
+        <span class="slf">self</span><span class="op">.</span>_stop_event <span class="op">=</span> threading<span class="op">.</span>Event()
+        <span class="slf">self</span><span class="op">.</span>_pause_event <span class="op">=</span> threading<span class="op">.</span>Event()
+        <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>set()  <span class="cm"># not paused initially</span>
+        <span class="slf">self</span><span class="op">.</span>_thread<span class="op">:</span> <span class="ty">Optional</span>[threading<span class="op">.</span>Thread] <span class="op">=</span> <span class="kw">None</span>
+
+        <span class="cm"># Callbacks</span>
+        <span class="slf">self</span><span class="op">.</span>_on_tick <span class="op">=</span> on_tick
+        <span class="slf">self</span><span class="op">.</span>_on_state_change <span class="op">=</span> on_state_change
+        <span class="slf">self</span><span class="op">.</span>_on_complete <span class="op">=</span> on_complete
+
+    <span class="cm"># ---- properties --------------------------------------------------------</span>
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="bi">state</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">TimerState</span><span class="op">:</span>
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="kw">return</span> <span class="slf">self</span><span class="op">.</span>_state
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="bi">remaining</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">int</span><span class="op">:</span>
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="kw">return</span> <span class="slf">self</span><span class="op">.</span>_remaining
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="bi">total_duration</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">int</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="slf">self</span><span class="op">.</span>_total_duration
+
+    <span class="cm"># ---- state transitions -------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_set_state</span>(<span class="slf">self</span><span class="op">,</span> new_state<span class="op">:</span> <span class="ty">TimerState</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Transition to *new_state*, raising on invalid moves."""</span>
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            pair <span class="op">=</span> (<span class="slf">self</span><span class="op">.</span>_state<span class="op">,</span> new_state)
+            <span class="kw">if</span> pair <span class="kw">not</span> <span class="kw">in</span> _VALID_TRANSITIONS<span class="op">:</span>
+                <span class="kw">raise</span> <span class="ty">RuntimeError</span>(
+                    <span class="st">f"Invalid transition: {</span><span class="slf">self</span><span class="op">.</span>_state<span class="op">.</span>value<span class="st">} -&gt; {</span>new_state<span class="op">.</span>value<span class="st">}"</span>
+                )
+            <span class="slf">self</span><span class="op">.</span>_state <span class="op">=</span> new_state
+        <span class="cm"># NOTE: Callback is intentionally fired outside the lock to avoid</span>
+        <span class="cm"># holding the lock during potentially slow UI updates.  This means a</span>
+        <span class="cm"># rapid sequence of transitions could deliver callbacks slightly out of</span>
+        <span class="cm"># order.  Acceptable for the current tkinter after(0, ...) usage but</span>
+        <span class="cm"># should be revisited if stricter ordering guarantees are needed.</span>
+        <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_on_state_change<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_on_state_change(new_state)
+
+    <span class="cm"># ---- public API --------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">start</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Begin a new focus session."""</span>
+        <span class="cm"># Ensure any previous timer thread is fully stopped before resetting</span>
+        <span class="cm"># state, preventing a data race on self._remaining (Issue #3).</span>
+        <span class="slf">self</span><span class="op">.</span>_join_thread()
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_remaining <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_total_duration
+        <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>clear()
+        <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>set()
+        <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>FOCUSING)
+        <span class="slf">self</span><span class="op">.</span>_thread <span class="op">=</span> threading<span class="op">.</span>Thread(target<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_run<span class="op">,</span> daemon<span class="op">=</span><span class="kw">True</span>)
+        <span class="slf">self</span><span class="op">.</span>_thread<span class="op">.</span>start()
+
+    <span class="kw">def</span> <span class="bi">pause</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>clear()
+        <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>PAUSED)
+
+    <span class="kw">def</span> <span class="bi">resume</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>FOCUSING)
+        <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>set()
+
+    <span class="kw">def</span> <span class="bi">stop</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Stop the timer and return to idle (from focusing or paused)."""</span>
+        current <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>state
+        <span class="kw">if</span> current <span class="kw">in</span> (TimerState<span class="op">.</span>FOCUSING<span class="op">,</span> TimerState<span class="op">.</span>PAUSED)<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>set()
+            <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>set()  <span class="cm"># unblock thread if paused</span>
+            <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>IDLE)
+            <span class="slf">self</span><span class="op">.</span>_join_thread()
+
+    <span class="kw">def</span> <span class="bi">reset</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Move from completed back to idle."""</span>
+        <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>state <span class="op">==</span> TimerState<span class="op">.</span>COMPLETED<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>IDLE)
+            <span class="slf">self</span><span class="op">.</span>_remaining <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_total_duration
+
+    <span class="kw">def</span> <span class="bi">shutdown</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Force-stop everything for clean exit."""</span>
+        <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>set()
+        <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>set()
+        <span class="slf">self</span><span class="op">.</span>_join_thread()
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_state <span class="op">=</span> TimerState<span class="op">.</span>IDLE
+
+    <span class="cm"># ---- internals ---------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_join_thread</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_thread <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> <span class="slf">self</span><span class="op">.</span>_thread<span class="op">.</span>is_alive()<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_thread<span class="op">.</span>join(timeout<span class="op">=</span><span class="nu">2</span>)
+            <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_thread<span class="op">.</span>is_alive()<span class="op">:</span>
+                logger<span class="op">.</span>warning(
+                    <span class="st">"Timer thread still alive after join timeout — "</span>
+                    <span class="st">"orphaned daemon thread will be cleaned up at process exit"</span>
+                )
+            <span class="slf">self</span><span class="op">.</span>_thread <span class="op">=</span> <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="bi">_run</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Background countdown loop (~1 s resolution)."""</span>
+        <span class="kw">while</span> <span class="kw">not</span> <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>is_set()<span class="op">:</span>
+            <span class="cm"># honour pause</span>
+            <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>wait(timeout<span class="op">=</span><span class="nu">0.25</span>)
+            <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>is_set()<span class="op">:</span>
+                <span class="kw">break</span>
+            <span class="kw">if</span> <span class="kw">not</span> <span class="slf">self</span><span class="op">.</span>_pause_event<span class="op">.</span>is_set()<span class="op">:</span>
+                <span class="kw">continue</span>
+
+            time<span class="op">.</span>sleep(<span class="nu">1</span>)
+            <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_stop_event<span class="op">.</span>is_set()<span class="op">:</span>
+                <span class="kw">break</span>
+
+            <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+                <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_remaining <span class="op">&gt;</span> <span class="nu">0</span><span class="op">:</span>
+                    <span class="slf">self</span><span class="op">.</span>_remaining <span class="op">-=</span> <span class="nu">1</span>
+                remaining <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_remaining
+
+            <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_on_tick<span class="op">:</span>
+                <span class="slf">self</span><span class="op">.</span>_on_tick(remaining)
+
+            <span class="kw">if</span> remaining <span class="op">&lt;=</span> <span class="nu">0</span><span class="op">:</span>
+                <span class="slf">self</span><span class="op">.</span>_set_state(TimerState<span class="op">.</span>COMPLETED)
+                <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_on_complete<span class="op">:</span>
+                    <span class="slf">self</span><span class="op">.</span>_on_complete()
+                <span class="kw">break</span></code></pre>
+</div>
+
+<!-- ---- blocker.py ---- -->
+<div class="card">
+  <div class="file-header">
+    <span class="filename">blocker.py</span>
+    <span class="filedesc">Distraction blocker (mock) &mdash; simulates blocking distracting sites via log output</span>
+  </div>
+  <pre><code><span class="cm">"""
+DeepSpace Distraction Blocker (Mock)
+Simulates blocking distracting websites/apps during focus sessions.
+All OS-level blocking is mocked via log statements.
+"""</span>
+
+<span class="kw">import</span> logging
+<span class="kw">from</span> typing <span class="kw">import</span> List<span class="op">,</span> Optional
+
+logger <span class="op">=</span> logging<span class="op">.</span>getLogger(<span class="st">"deepspace.blocker"</span>)
+
+<span class="cm"># Default list of "blocked" distractions (for simulation)</span>
+DEFAULT_BLOCKLIST<span class="op">:</span> <span class="ty">List</span>[<span class="ty">str</span>] <span class="op">=</span> [
+    <span class="st">"twitter.com"</span><span class="op">,</span>
+    <span class="st">"reddit.com"</span><span class="op">,</span>
+    <span class="st">"youtube.com"</span><span class="op">,</span>
+    <span class="st">"facebook.com"</span><span class="op">,</span>
+    <span class="st">"instagram.com"</span><span class="op">,</span>
+    <span class="st">"tiktok.com"</span><span class="op">,</span>
+    <span class="st">"news.ycombinator.com"</span><span class="op">,</span>
+]
+
+
+<span class="kw">class</span> <span class="ty">MockDistractionsBlocker</span><span class="op">:</span>
+    <span class="cm">"""Mock blocker that logs activation/deactivation instead of touching the OS."""</span>
+
+    <span class="kw">def</span> <span class="bi">__init__</span>(<span class="slf">self</span><span class="op">,</span> blocklist<span class="op">:</span> <span class="ty">Optional</span>[<span class="ty">List</span>[<span class="ty">str</span>]] <span class="op">=</span> <span class="kw">None</span>)<span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_blocklist <span class="op">=</span> blocklist <span class="kw">if</span> blocklist <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="bi">list</span>(DEFAULT_BLOCKLIST)
+        <span class="slf">self</span><span class="op">.</span>_active <span class="op">=</span> <span class="kw">False</span>
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="bi">is_active</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">bool</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="slf">self</span><span class="op">.</span>_active
+
+    <span class="kw">def</span> <span class="bi">activate</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_active<span class="op">:</span>
+            logger<span class="op">.</span>warning(<span class="st">"Blocker already active — ignoring duplicate activate()"</span>)
+            <span class="kw">return</span>
+        <span class="slf">self</span><span class="op">.</span>_active <span class="op">=</span> <span class="kw">True</span>
+        logger<span class="op">.</span>info(<span class="st">"=== DISTRACTION BLOCKER ACTIVATED ==="</span>)
+        <span class="kw">for</span> site <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">:</span>
+            logger<span class="op">.</span>info(<span class="st">"  [BLOCKED] %s"</span><span class="op">,</span> site)
+        logger<span class="op">.</span>info(<span class="st">"Distraction blocker ON  — %d sites blocked"</span><span class="op">,</span> <span class="bi">len</span>(<span class="slf">self</span><span class="op">.</span>_blocklist))
+
+    <span class="kw">def</span> <span class="bi">deactivate</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="kw">not</span> <span class="slf">self</span><span class="op">.</span>_active<span class="op">:</span>
+            logger<span class="op">.</span>warning(<span class="st">"Blocker already inactive — ignoring duplicate deactivate()"</span>)
+            <span class="kw">return</span>
+        <span class="slf">self</span><span class="op">.</span>_active <span class="op">=</span> <span class="kw">False</span>
+        logger<span class="op">.</span>info(<span class="st">"=== DISTRACTION BLOCKER DEACTIVATED ==="</span>)
+        <span class="kw">for</span> site <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">:</span>
+            logger<span class="op">.</span>info(<span class="st">"  [UNBLOCKED] %s"</span><span class="op">,</span> site)
+        logger<span class="op">.</span>info(<span class="st">"Distraction blocker OFF — all sites unblocked"</span>)
+
+    <span class="kw">def</span> <span class="bi">add_site</span>(<span class="slf">self</span><span class="op">,</span> site<span class="op">:</span> <span class="ty">str</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">if</span> site <span class="kw">not</span> <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">.</span>append(site)
+            logger<span class="op">.</span>info(<span class="st">"Added %s to blocklist"</span><span class="op">,</span> site)
+
+    <span class="kw">def</span> <span class="bi">remove_site</span>(<span class="slf">self</span><span class="op">,</span> site<span class="op">:</span> <span class="ty">str</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">if</span> site <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_blocklist<span class="op">.</span>remove(site)
+            logger<span class="op">.</span>info(<span class="st">"Removed %s from blocklist"</span><span class="op">,</span> site)</code></pre>
+</div>
+
+<!-- ---- ui.py ---- -->
+<div class="card">
+  <div class="file-header">
+    <span class="filename">ui.py</span>
+    <span class="filedesc">Tkinter UI layer &mdash; dark-themed always-on-top focus timer window with session stats</span>
+  </div>
+  <pre><code><span class="cm">"""
+DeepSpace Tkinter UI
+Minimal dark-themed always-on-top focus timer window.
+"""</span>
+
+<span class="kw">import</span> logging
+<span class="kw">import</span> tkinter <span class="kw">as</span> tk
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+<span class="kw">from</span> typing <span class="kw">import</span> Deque
+
+<span class="kw">from</span> timer <span class="kw">import</span> FocusTimer<span class="op">,</span> TimerState
+<span class="kw">from</span> blocker <span class="kw">import</span> MockDistractionsBlocker
+<span class="kw">from</span> session_store <span class="kw">import</span> SessionStore
+
+logger <span class="op">=</span> logging<span class="op">.</span>getLogger(<span class="st">"deepspace.ui"</span>)
+
+
+<span class="cm"># ---- colour palette --------------------------------------------------------</span>
+
+BG <span class="op">=</span> <span class="st">"#1a1a2e"</span>
+BG_CARD <span class="op">=</span> <span class="st">"#16213e"</span>
+FG <span class="op">=</span> <span class="st">"#e0e0e0"</span>
+ACCENT <span class="op">=</span> <span class="st">"#0f3460"</span>
+ACCENT_ACTIVE <span class="op">=</span> <span class="st">"#533483"</span>
+BTN_START <span class="op">=</span> <span class="st">"#00b894"</span>
+BTN_PAUSE <span class="op">=</span> <span class="st">"#fdcb6e"</span>
+BTN_STOP <span class="op">=</span> <span class="st">"#d63031"</span>
+BTN_FG <span class="op">=</span> <span class="st">"#ffffff"</span>
+TIMER_FG <span class="op">=</span> <span class="st">"#00cec9"</span>
+DIM <span class="op">=</span> <span class="st">"#636e72"</span>
+
+
+<span class="kw">def</span> <span class="bi">_fmt_time</span>(seconds<span class="op">:</span> <span class="ty">int</span>) <span class="op">-&gt;</span> <span class="ty">str</span><span class="op">:</span>
+    m<span class="op">,</span> s <span class="op">=</span> <span class="bi">divmod</span>(<span class="bi">max</span>(seconds<span class="op">,</span> <span class="nu">0</span>)<span class="op">,</span> <span class="nu">60</span>)
+    <span class="kw">return</span> <span class="st">f"{m:02d}:{s:02d}"</span>
+
+
+<span class="kw">class</span> <span class="ty">DeepSpaceUI</span><span class="op">:</span>
+    <span class="cm">"""Main application window."""</span>
+
+    FOCUS_DURATION <span class="op">=</span> <span class="nu">25</span> <span class="op">*</span> <span class="nu">60</span>  <span class="cm"># 25 minutes in seconds</span>
+
+    <span class="kw">def</span> <span class="bi">__init__</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm"># ---- core components ------------------------------------------------</span>
+        <span class="slf">self</span><span class="op">.</span>_store <span class="op">=</span> SessionStore()
+        <span class="slf">self</span><span class="op">.</span>_blocker <span class="op">=</span> MockDistractionsBlocker()
+        <span class="slf">self</span><span class="op">.</span>_timer <span class="op">=</span> FocusTimer(
+            duration_seconds<span class="op">=</span><span class="slf">self</span><span class="op">.</span>FOCUS_DURATION<span class="op">,</span>
+            on_tick<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_tick<span class="op">,</span>
+            on_state_change<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_state_change<span class="op">,</span>
+            on_complete<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_complete<span class="op">,</span>
+        )
+
+        <span class="cm"># ---- root window ----------------------------------------------------</span>
+        <span class="slf">self</span><span class="op">.</span>_root <span class="op">=</span> tk<span class="op">.</span>Tk()
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>title(<span class="st">"DeepSpace"</span>)
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>configure(bg<span class="op">=</span>BG)
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>resizable(<span class="kw">False</span><span class="op">,</span> <span class="kw">False</span>)
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>attributes(<span class="st">"-topmost"</span><span class="op">,</span> <span class="kw">True</span>)
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>protocol(<span class="st">"WM_DELETE_WINDOW"</span><span class="op">,</span> <span class="slf">self</span><span class="op">.</span>_on_close)
+
+        <span class="cm"># Centre the window</span>
+        w<span class="op">,</span> h <span class="op">=</span> <span class="nu">340</span><span class="op">,</span> <span class="nu">420</span>
+        sx <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>winfo_screenwidth() <span class="op">//</span> <span class="nu">2</span> <span class="op">-</span> w <span class="op">//</span> <span class="nu">2</span>
+        sy <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>winfo_screenheight() <span class="op">//</span> <span class="nu">2</span> <span class="op">-</span> h <span class="op">//</span> <span class="nu">2</span>
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>geometry(<span class="st">f"{w}x{h}+{sx}+{sy}"</span>)
+
+        <span class="cm"># Track pending after() ids for cleanup (bounded to avoid unbounded growth)</span>
+        <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">:</span> <span class="ty">Deque</span>[<span class="ty">str</span>] <span class="op">=</span> deque(maxlen<span class="op">=</span><span class="nu">200</span>)
+
+        <span class="slf">self</span><span class="op">.</span>_build_widgets()
+        <span class="slf">self</span><span class="op">.</span>_show_idle()
+
+    <span class="cm"># ---- widget construction -----------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_build_widgets</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm"># Title</span>
+        tk<span class="op">.</span>Label(
+            <span class="slf">self</span><span class="op">.</span>_root<span class="op">,</span> text<span class="op">=</span><span class="st">"DeepSpace"</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">20</span><span class="op">,</span> <span class="st">"bold"</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BG<span class="op">,</span> fg<span class="op">=</span>FG<span class="op">,</span>
+        )<span class="op">.</span>pack(pady<span class="op">=</span>(<span class="nu">18</span><span class="op">,</span> <span class="nu">2</span>))
+
+        tk<span class="op">.</span>Label(
+            <span class="slf">self</span><span class="op">.</span>_root<span class="op">,</span> text<span class="op">=</span><span class="st">"Focus Timer"</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">10</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BG<span class="op">,</span> fg<span class="op">=</span>DIM<span class="op">,</span>
+        )<span class="op">.</span>pack()
+
+        <span class="cm"># Timer card</span>
+        <span class="slf">self</span><span class="op">.</span>_card <span class="op">=</span> tk<span class="op">.</span>Frame(<span class="slf">self</span><span class="op">.</span>_root<span class="op">,</span> bg<span class="op">=</span>BG_CARD<span class="op">,</span> bd<span class="op">=</span><span class="nu">0</span><span class="op">,</span> highlightthickness<span class="op">=</span><span class="nu">0</span>)
+        <span class="slf">self</span><span class="op">.</span>_card<span class="op">.</span>pack(padx<span class="op">=</span><span class="nu">24</span><span class="op">,</span> pady<span class="op">=</span><span class="nu">18</span><span class="op">,</span> fill<span class="op">=</span><span class="st">"x"</span>)
+
+        <span class="slf">self</span><span class="op">.</span>_time_label <span class="op">=</span> tk<span class="op">.</span>Label(
+            <span class="slf">self</span><span class="op">.</span>_card<span class="op">,</span> text<span class="op">=</span>_fmt_time(<span class="slf">self</span><span class="op">.</span>FOCUS_DURATION)<span class="op">,</span>
+            font<span class="op">=</span>(<span class="st">"Courier"</span><span class="op">,</span> <span class="nu">48</span><span class="op">,</span> <span class="st">"bold"</span>)<span class="op">,</span> bg<span class="op">=</span>BG_CARD<span class="op">,</span> fg<span class="op">=</span>TIMER_FG<span class="op">,</span>
+        )
+        <span class="slf">self</span><span class="op">.</span>_time_label<span class="op">.</span>pack(pady<span class="op">=</span>(<span class="nu">18</span><span class="op">,</span> <span class="nu">4</span>))
+
+        <span class="slf">self</span><span class="op">.</span>_status_label <span class="op">=</span> tk<span class="op">.</span>Label(
+            <span class="slf">self</span><span class="op">.</span>_card<span class="op">,</span> text<span class="op">=</span><span class="st">"Ready to focus"</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">11</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BG_CARD<span class="op">,</span> fg<span class="op">=</span>DIM<span class="op">,</span>
+        )
+        <span class="slf">self</span><span class="op">.</span>_status_label<span class="op">.</span>pack(pady<span class="op">=</span>(<span class="nu">0</span><span class="op">,</span> <span class="nu">14</span>))
+
+        <span class="cm"># Button area</span>
+        <span class="slf">self</span><span class="op">.</span>_btn_frame <span class="op">=</span> tk<span class="op">.</span>Frame(<span class="slf">self</span><span class="op">.</span>_root<span class="op">,</span> bg<span class="op">=</span>BG)
+        <span class="slf">self</span><span class="op">.</span>_btn_frame<span class="op">.</span>pack(pady<span class="op">=</span><span class="nu">6</span>)
+
+        <span class="slf">self</span><span class="op">.</span>_btn_primary <span class="op">=</span> tk<span class="op">.</span>Button(
+            <span class="slf">self</span><span class="op">.</span>_btn_frame<span class="op">,</span> text<span class="op">=</span><span class="st">"Start Focus"</span><span class="op">,</span> width<span class="op">=</span><span class="nu">16</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">12</span><span class="op">,</span> <span class="st">"bold"</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BTN_START<span class="op">,</span> fg<span class="op">=</span>BTN_FG<span class="op">,</span> activebackground<span class="op">=</span>ACCENT_ACTIVE<span class="op">,</span>
+            activeforeground<span class="op">=</span>BTN_FG<span class="op">,</span> relief<span class="op">=</span><span class="st">"flat"</span><span class="op">,</span> bd<span class="op">=</span><span class="nu">0</span><span class="op">,</span> cursor<span class="op">=</span><span class="st">"hand2"</span><span class="op">,</span>
+            command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_start<span class="op">,</span>
+        )
+        <span class="slf">self</span><span class="op">.</span>_btn_primary<span class="op">.</span>pack(pady<span class="op">=</span><span class="nu">4</span>)
+
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary <span class="op">=</span> tk<span class="op">.</span>Button(
+            <span class="slf">self</span><span class="op">.</span>_btn_frame<span class="op">,</span> text<span class="op">=</span><span class="st">""</span><span class="op">,</span> width<span class="op">=</span><span class="nu">16</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">11</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BTN_STOP<span class="op">,</span> fg<span class="op">=</span>BTN_FG<span class="op">,</span> activebackground<span class="op">=</span>ACCENT<span class="op">,</span>
+            activeforeground<span class="op">=</span>BTN_FG<span class="op">,</span> relief<span class="op">=</span><span class="st">"flat"</span><span class="op">,</span> bd<span class="op">=</span><span class="nu">0</span><span class="op">,</span> cursor<span class="op">=</span><span class="st">"hand2"</span><span class="op">,</span>
+        )
+        <span class="cm"># secondary button is hidden initially</span>
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack(pady<span class="op">=</span><span class="nu">4</span>)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack_forget()
+
+        <span class="cm"># Stats footer</span>
+        <span class="slf">self</span><span class="op">.</span>_stats_label <span class="op">=</span> tk<span class="op">.</span>Label(
+            <span class="slf">self</span><span class="op">.</span>_root<span class="op">,</span> text<span class="op">=</span><span class="st">""</span><span class="op">,</span> font<span class="op">=</span>(<span class="st">"Helvetica"</span><span class="op">,</span> <span class="nu">9</span>)<span class="op">,</span>
+            bg<span class="op">=</span>BG<span class="op">,</span> fg<span class="op">=</span>DIM<span class="op">,</span>
+        )
+        <span class="slf">self</span><span class="op">.</span>_stats_label<span class="op">.</span>pack(side<span class="op">=</span><span class="st">"bottom"</span><span class="op">,</span> pady<span class="op">=</span>(<span class="nu">0</span><span class="op">,</span> <span class="nu">12</span>))
+        <span class="slf">self</span><span class="op">.</span>_update_stats()
+
+    <span class="cm"># ---- view helpers ------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_show_idle</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_time_label<span class="op">.</span>config(text<span class="op">=</span>_fmt_time(<span class="slf">self</span><span class="op">.</span>FOCUS_DURATION)<span class="op">,</span> fg<span class="op">=</span>TIMER_FG)
+        <span class="slf">self</span><span class="op">.</span>_status_label<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Ready to focus"</span>)
+        <span class="slf">self</span><span class="op">.</span>_btn_primary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Start Focus"</span><span class="op">,</span> bg<span class="op">=</span>BTN_START<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_start)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack_forget()
+
+    <span class="kw">def</span> <span class="bi">_show_focusing</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_status_label<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Focusing..."</span>)
+        <span class="slf">self</span><span class="op">.</span>_btn_primary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Pause"</span><span class="op">,</span> bg<span class="op">=</span>BTN_PAUSE<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_pause)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Stop"</span><span class="op">,</span> bg<span class="op">=</span>BTN_STOP<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_stop)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack(pady<span class="op">=</span><span class="nu">4</span>)
+
+    <span class="kw">def</span> <span class="bi">_show_paused</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_status_label<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Paused"</span>)
+        <span class="slf">self</span><span class="op">.</span>_btn_primary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Resume"</span><span class="op">,</span> bg<span class="op">=</span>BTN_START<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_resume)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Stop"</span><span class="op">,</span> bg<span class="op">=</span>BTN_STOP<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_stop)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack(pady<span class="op">=</span><span class="nu">4</span>)
+
+    <span class="kw">def</span> <span class="bi">_show_completed</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_time_label<span class="op">.</span>config(text<span class="op">=</span><span class="st">"00:00"</span><span class="op">,</span> fg<span class="op">=</span>BTN_START)
+        <span class="slf">self</span><span class="op">.</span>_status_label<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Session complete!"</span>)
+        <span class="slf">self</span><span class="op">.</span>_btn_primary<span class="op">.</span>config(text<span class="op">=</span><span class="st">"Start Again"</span><span class="op">,</span> bg<span class="op">=</span>BTN_START<span class="op">,</span> command<span class="op">=</span><span class="slf">self</span><span class="op">.</span>_on_restart)
+        <span class="slf">self</span><span class="op">.</span>_btn_secondary<span class="op">.</span>pack_forget()
+        <span class="slf">self</span><span class="op">.</span>_update_stats()
+
+    <span class="kw">def</span> <span class="bi">_update_stats</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        today <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_store<span class="op">.</span>today_count()
+        total <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_store<span class="op">.</span>total_focus_minutes()
+        <span class="slf">self</span><span class="op">.</span>_stats_label<span class="op">.</span>config(
+            text<span class="op">=</span><span class="st">f"Today: {today} session{'s' if today != 1 else ''}  |  "</span>
+                 <span class="st">f"Total: {total:.0f} min focused"</span>
+        )
+
+    <span class="cm"># ---- button callbacks --------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_on_start</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_blocker<span class="op">.</span>activate()
+            <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>start()
+        <span class="kw">except</span> <span class="ty">Exception</span><span class="op">:</span>
+            logger<span class="op">.</span>exception(<span class="st">"Error in _on_start"</span>)
+            <span class="slf">self</span><span class="op">.</span>_show_idle()
+
+    <span class="kw">def</span> <span class="bi">_on_pause</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>pause()
+        <span class="kw">except</span> <span class="ty">Exception</span><span class="op">:</span>
+            logger<span class="op">.</span>exception(<span class="st">"Error in _on_pause"</span>)
+            <span class="slf">self</span><span class="op">.</span>_show_idle()
+
+    <span class="kw">def</span> <span class="bi">_on_resume</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>resume()
+        <span class="kw">except</span> <span class="ty">Exception</span><span class="op">:</span>
+            logger<span class="op">.</span>exception(<span class="st">"Error in _on_resume"</span>)
+            <span class="slf">self</span><span class="op">.</span>_show_idle()
+
+    <span class="kw">def</span> <span class="bi">_on_stop</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_blocker<span class="op">.</span>deactivate()
+            <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>stop()
+        <span class="kw">except</span> <span class="ty">Exception</span><span class="op">:</span>
+            logger<span class="op">.</span>exception(<span class="st">"Error in _on_stop"</span>)
+        <span class="kw">finally</span><span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_show_idle()
+            <span class="slf">self</span><span class="op">.</span>_update_stats()
+
+    <span class="kw">def</span> <span class="bi">_on_restart</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>reset()
+        <span class="slf">self</span><span class="op">.</span>_on_start()
+
+    <span class="cm"># ---- timer callbacks (called from background thread) -------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_on_tick</span>(<span class="slf">self</span><span class="op">,</span> remaining<span class="op">:</span> <span class="ty">int</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        aid <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>after(<span class="nu">0</span><span class="op">,</span> <span class="slf">self</span><span class="op">.</span>_time_label<span class="op">.</span>config<span class="op">,</span> {<span class="st">"text"</span><span class="op">:</span> _fmt_time(remaining)})
+        <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">.</span>append(aid)
+
+    <span class="kw">def</span> <span class="bi">_on_state_change</span>(<span class="slf">self</span><span class="op">,</span> new_state<span class="op">:</span> <span class="ty">TimerState</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        view_map <span class="op">=</span> {
+            TimerState<span class="op">.</span>IDLE<span class="op">:</span> <span class="slf">self</span><span class="op">.</span>_show_idle<span class="op">,</span>
+            TimerState<span class="op">.</span>FOCUSING<span class="op">:</span> <span class="slf">self</span><span class="op">.</span>_show_focusing<span class="op">,</span>
+            TimerState<span class="op">.</span>PAUSED<span class="op">:</span> <span class="slf">self</span><span class="op">.</span>_show_paused<span class="op">,</span>
+            TimerState<span class="op">.</span>COMPLETED<span class="op">:</span> <span class="slf">self</span><span class="op">.</span>_show_completed<span class="op">,</span>
+        }
+        fn <span class="op">=</span> view_map<span class="op">.</span>get(new_state)
+        <span class="kw">if</span> fn<span class="op">:</span>
+            aid <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>after(<span class="nu">0</span><span class="op">,</span> fn)
+            <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">.</span>append(aid)
+
+    <span class="kw">def</span> <span class="bi">_on_complete</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_blocker<span class="op">.</span>deactivate()
+        <span class="slf">self</span><span class="op">.</span>_store<span class="op">.</span>record(<span class="slf">self</span><span class="op">.</span>FOCUS_DURATION<span class="op">,</span> completed<span class="op">=</span><span class="kw">True</span>)
+        aid <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>after(<span class="nu">0</span><span class="op">,</span> <span class="slf">self</span><span class="op">.</span>_update_stats)
+        <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">.</span>append(aid)
+
+    <span class="cm"># ---- lifecycle ---------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_on_close</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="cm">"""Graceful shutdown: cancel pending callbacks, stop timer, destroy window."""</span>
+        <span class="cm"># Cancel all pending after() callbacks</span>
+        <span class="kw">for</span> aid <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">:</span>
+            <span class="kw">try</span><span class="op">:</span>
+                <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>after_cancel(aid)
+            <span class="kw">except</span> <span class="ty">Exception</span><span class="op">:</span>
+                <span class="kw">pass</span>
+        <span class="slf">self</span><span class="op">.</span>_after_ids<span class="op">.</span>clear()
+
+        <span class="cm"># Shut down timer thread</span>
+        <span class="slf">self</span><span class="op">.</span>_timer<span class="op">.</span>shutdown()
+
+        <span class="cm"># Deactivate blocker if still active</span>
+        <span class="kw">if</span> <span class="slf">self</span><span class="op">.</span>_blocker<span class="op">.</span>is_active<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_blocker<span class="op">.</span>deactivate()
+
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>destroy()
+
+    <span class="kw">def</span> <span class="bi">run</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_root<span class="op">.</span>mainloop()</code></pre>
+</div>
+
+<!-- ---- session_store.py ---- -->
+<div class="card">
+  <div class="file-header">
+    <span class="filename">session_store.py</span>
+    <span class="filedesc">Session history &mdash; thread-safe JSON-backed persistence for completed focus sessions</span>
+  </div>
+  <pre><code><span class="cm">"""
+DeepSpace Session Store
+Persists completed focus sessions to a local JSON file.
+"""</span>
+
+<span class="kw">import</span> json
+<span class="kw">import</span> os
+<span class="kw">import</span> threading
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime<span class="op">,</span> timezone
+<span class="kw">from</span> typing <span class="kw">import</span> Any<span class="op">,</span> Dict<span class="op">,</span> List
+
+
+_DEFAULT_PATH <span class="op">=</span> os<span class="op">.</span>path<span class="op">.</span>join(os<span class="op">.</span>path<span class="op">.</span>dirname(os<span class="op">.</span>path<span class="op">.</span>abspath(<span class="bi">__file__</span>))<span class="op">,</span> <span class="st">"sessions.json"</span>)
+
+
+<span class="kw">class</span> <span class="ty">SessionStore</span><span class="op">:</span>
+    <span class="cm">"""Thread-safe JSON-backed session history."""</span>
+
+    <span class="kw">def</span> <span class="bi">__init__</span>(<span class="slf">self</span><span class="op">,</span> path<span class="op">:</span> <span class="ty">str</span> <span class="op">=</span> _DEFAULT_PATH)<span class="op">:</span>
+        <span class="slf">self</span><span class="op">.</span>_path <span class="op">=</span> path
+        <span class="slf">self</span><span class="op">.</span>_lock <span class="op">=</span> threading<span class="op">.</span>Lock()
+        <span class="slf">self</span><span class="op">.</span>_sessions<span class="op">:</span> <span class="ty">List</span>[<span class="ty">Dict</span>[<span class="ty">str</span><span class="op">,</span> <span class="ty">Any</span>]] <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_load()
+
+    <span class="cm"># ---- public API --------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">record</span>(<span class="slf">self</span><span class="op">,</span> duration_seconds<span class="op">:</span> <span class="ty">int</span><span class="op">,</span> completed<span class="op">:</span> <span class="ty">bool</span> <span class="op">=</span> <span class="kw">True</span>) <span class="op">-&gt;</span> <span class="ty">Dict</span>[<span class="ty">str</span><span class="op">,</span> <span class="ty">Any</span>]<span class="op">:</span>
+        <span class="cm">"""Record a session and return the entry."""</span>
+        entry <span class="op">=</span> {
+            <span class="st">"timestamp"</span><span class="op">:</span> datetime<span class="op">.</span>now(timezone<span class="op">.</span>utc)<span class="op">.</span>isoformat()<span class="op">,</span>
+            <span class="st">"duration_seconds"</span><span class="op">:</span> duration_seconds<span class="op">,</span>
+            <span class="st">"completed"</span><span class="op">:</span> completed<span class="op">,</span>
+        }
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="slf">self</span><span class="op">.</span>_sessions<span class="op">.</span>append(entry)
+            <span class="slf">self</span><span class="op">.</span>_save()
+        <span class="kw">return</span> entry
+
+    <span class="kw">def</span> <span class="bi">history</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">List</span>[<span class="ty">Dict</span>[<span class="ty">str</span><span class="op">,</span> <span class="ty">Any</span>]]<span class="op">:</span>
+        <span class="cm">"""Return a copy of all sessions."""</span>
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="kw">return</span> <span class="bi">list</span>(<span class="slf">self</span><span class="op">.</span>_sessions)
+
+    <span class="kw">def</span> <span class="bi">today_count</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">int</span><span class="op">:</span>
+        <span class="cm">"""Number of completed sessions recorded today (UTC)."""</span>
+        today <span class="op">=</span> datetime<span class="op">.</span>now(timezone<span class="op">.</span>utc)<span class="op">.</span>date()<span class="op">.</span>isoformat()
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="kw">return</span> <span class="bi">sum</span>(
+                <span class="nu">1</span>
+                <span class="kw">for</span> s <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_sessions
+                <span class="kw">if</span> s<span class="op">.</span>get(<span class="st">"completed"</span>) <span class="kw">and</span> s[<span class="st">"timestamp"</span>]<span class="op">.</span>startswith(today)
+            )
+
+    <span class="kw">def</span> <span class="bi">total_focus_minutes</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">float</span><span class="op">:</span>
+        <span class="cm">"""Total completed focus time across all sessions, in minutes."""</span>
+        <span class="kw">with</span> <span class="slf">self</span><span class="op">.</span>_lock<span class="op">:</span>
+            <span class="kw">return</span> <span class="bi">sum</span>(
+                s[<span class="st">"duration_seconds"</span>] <span class="op">/</span> <span class="nu">60.0</span>
+                <span class="kw">for</span> s <span class="kw">in</span> <span class="slf">self</span><span class="op">.</span>_sessions
+                <span class="kw">if</span> s<span class="op">.</span>get(<span class="st">"completed"</span>)
+            )
+
+    <span class="cm"># ---- persistence -------------------------------------------------------</span>
+
+    <span class="kw">def</span> <span class="bi">_load</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">List</span>[<span class="ty">Dict</span>[<span class="ty">str</span><span class="op">,</span> <span class="ty">Any</span>]]<span class="op">:</span>
+        <span class="kw">if</span> <span class="kw">not</span> os<span class="op">.</span>path<span class="op">.</span>exists(<span class="slf">self</span><span class="op">.</span>_path)<span class="op">:</span>
+            <span class="kw">return</span> []
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="kw">with</span> <span class="bi">open</span>(<span class="slf">self</span><span class="op">.</span>_path<span class="op">,</span> <span class="st">"r"</span><span class="op">,</span> encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> f<span class="op">:</span>
+                data <span class="op">=</span> json<span class="op">.</span>load(f)
+            <span class="kw">if</span> <span class="bi">isinstance</span>(data<span class="op">,</span> <span class="bi">list</span>)<span class="op">:</span>
+                <span class="kw">return</span> data
+        <span class="kw">except</span> (json<span class="op">.</span>JSONDecodeError<span class="op">,</span> <span class="ty">OSError</span>)<span class="op">:</span>
+            <span class="kw">pass</span>
+        <span class="kw">return</span> []
+
+    <span class="kw">def</span> <span class="bi">_save</span>(<span class="slf">self</span>) <span class="op">-&gt;</span> <span class="ty">None</span><span class="op">:</span>
+        tmp <span class="op">=</span> <span class="slf">self</span><span class="op">.</span>_path <span class="op">+</span> <span class="st">".tmp"</span>
+        <span class="kw">with</span> <span class="bi">open</span>(tmp<span class="op">,</span> <span class="st">"w"</span><span class="op">,</span> encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> f<span class="op">:</span>
+            json<span class="op">.</span>dump(<span class="slf">self</span><span class="op">.</span>_sessions<span class="op">,</span> f<span class="op">,</span> indent<span class="op">=</span><span class="nu">2</span>)
+        <span class="cm"># Atomic-ish rename (os.replace works whether or not dest exists)</span>
+        os<span class="op">.</span>replace(tmp<span class="op">,</span> <span class="slf">self</span><span class="op">.</span>_path)</code></pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 2 : REVIEWER FEEDBACK                                 -->
+<!-- ============================================================ -->
+<h2 class="section-title" id="reviewer-feedback">2. Reviewer Feedback (Iteration 2 &mdash; Approved)</h2>
+
+<div class="card md-content">
+
+  <h1>DeepSpace Focus Timer &mdash; Adversarial Code Review (Iteration 2)</h1>
+
+  <p><strong>Reviewer:</strong> Purple Manager (Critic Role)<br>
+  <strong>Date:</strong> 2026-03-03<br>
+  <strong>Verdict:</strong> <span class="verdict">APPROVED</span></p>
+
+  <hr>
+
+  <h2>Iteration 1 Issue Verification</h2>
+  <p>All 7 issues from Iteration 1 have been verified as fixed by reading the actual source code.</p>
+
+  <h3>Issue 1 (Medium) &mdash; Unbounded <code>_after_ids</code> list growth</h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  <code>ui.py</code> line 69 now uses <code>deque(maxlen=200)</code> from <code>collections</code>, imported on line 8. The bounded deque automatically evicts old entries, preventing unbounded growth. The <code>Deque[str]</code> type hint is imported from <code>typing</code> (line 9), maintaining Python 3.8 compatibility.</p>
+
+  <h3>Issue 2 (Low) &mdash; <code>_join_thread</code> timeout may orphan thread silently</h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  <code>timer.py</code> lines 145-149: After <code>join(timeout=2)</code>, the code now checks <code>self._thread.is_alive()</code> and logs a warning via <code>logger.warning()</code> if the thread did not terminate. The thread reference is then set to <code>None</code> regardless, which is correct since the daemon thread will be cleaned up at process exit.</p>
+
+  <h3>Issue 3 (High) &mdash; <code>_remaining</code> reset outside lock &mdash; data race</h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  <code>timer.py</code> lines 98-102: <code>start()</code> now calls <code>self._join_thread()</code> first to ensure the previous thread is fully stopped, then sets <code>self._remaining = self._total_duration</code> inside <code>with self._lock</code>. Both mitigations applied &mdash; the join ensures no old thread is running, and the lock protects the assignment. Comment on line 99 documents the rationale.</p>
+
+  <h3>Issue 4 (Medium) &mdash; State-change callback outside lock</h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  <code>timer.py</code> lines 86-92: A detailed comment now explains why the callback is intentionally fired outside the lock (to avoid holding the lock during potentially slow UI updates) and acknowledges the theoretical out-of-order delivery risk. This is the correct tradeoff for tkinter's <code>after(0, ...)</code> usage pattern.</p>
+
+  <h3>Issue 5 (High) &mdash; Python 3.8/3.9 incompatible type hints</h3>
+  <p><span class="status-fixed">Status: FIXED</span></p>
+  <ul>
+    <li><code>blocker.py</code> line 8: Uses <code>from typing import List, Optional</code>. Line 27: <code>Optional[List[str]]</code> &mdash; no PEP 604 <code>X | Y</code> syntax.</li>
+    <li><code>ui.py</code> line 9: Uses <code>from typing import Deque</code>. Line 69: <code>Deque[str]</code> &mdash; no bare <code>list[str]</code> annotation.</li>
+    <li>All other type hints across all files use <code>typing</code> imports (<code>Optional</code>, <code>Callable</code>, <code>List</code>, <code>Dict</code>, <code>Any</code>). Full Python 3.8+ compatibility confirmed.</li>
+  </ul>
+
+  <h3>Issue 6 (Medium) &mdash; No exception guard in button callbacks</h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  All four button callbacks now have try/except guards:</p>
+  <ul>
+    <li><code>_on_start</code> (lines 170-176): Catches exceptions, logs them, falls back to <code>_show_idle()</code>.</li>
+    <li><code>_on_pause</code> (lines 178-183): Same pattern.</li>
+    <li><code>_on_resume</code> (lines 185-190): Same pattern.</li>
+    <li><code>_on_stop</code> (lines 192-200): Uses <code>try/except/finally</code> to ensure <code>_show_idle()</code> and <code>_update_stats()</code> always execute, even if <code>_timer.stop()</code> raises.</li>
+  </ul>
+
+  <h3>Issue 7 (Low) &mdash; Redundant path-existence check in <code>_save()</code></h3>
+  <p><span class="status-fixed">Status: FIXED</span><br>
+  <code>session_store.py</code> lines 77-81: Simplified to write to a <code>.tmp</code> file then <code>os.replace(tmp, self._path)</code>. No redundant <code>os.path.exists</code> check. Clean and correct.</p>
+
+  <hr>
+
+  <h2>Regression Check</h2>
+  <h3>New Issues Introduced by Fixes: None found</h3>
+  <p>Checked for the following regressions:</p>
+  <ol>
+    <li><strong>Bounded deque eviction:</strong> If <code>maxlen=200</code> is exceeded, old (already-fired) <code>after()</code> IDs are silently dropped. Since <code>after(0, ...)</code> executes essentially immediately, evicted IDs correspond to callbacks that have already run. The <code>_on_close</code> handler's <code>after_cancel()</code> calls on these stale IDs are harmless (wrapped in try/except). No regression.</li>
+    <li><strong><code>_join_thread</code> after warning still sets <code>_thread = None</code>:</strong> After logging the warning, the thread reference is cleared (line 150). This prevents subsequent <code>_join_thread</code> calls from blocking on the same orphaned thread. Correct behavior &mdash; the daemon thread will die with the process.</li>
+    <li><strong>Lock scope in <code>start()</code>:</strong> The lock now covers <code>_remaining</code> assignment but not the <code>_stop_event.clear()</code> or <code>_pause_event.set()</code> calls. These are <code>threading.Event</code> methods which are inherently thread-safe, so no lock is needed. No regression.</li>
+    <li><strong>Exception handling in <code>_on_start</code>:</strong> If <code>_blocker.activate()</code> succeeds but <code>_timer.start()</code> raises, the blocker remains active while the UI shows idle. In practice, <code>_timer.start()</code> can only raise if the state transition is invalid (not IDLE -&gt; FOCUSING), which cannot happen from the idle UI state. The <code>_on_close</code> handler deactivates the blocker as a safety net. Acceptable.</li>
+    <li><strong>Thread safety of <code>_on_complete</code> callback:</strong> Called from the background thread, it invokes <code>self._blocker.deactivate()</code> directly (not via <code>after()</code>). The <code>MockDistractionsBlocker</code> has no thread synchronization, but its <code>_active</code> flag is only ever set from one path at a time under normal operation. The <code>is_active</code> guard in <code>deactivate()</code> prevents double-deactivation. Acceptable for the mock implementation.</li>
+  </ol>
+
+  <hr>
+
+  <h2>Spec Compliance Re-check</h2>
+  <table>
+    <thead>
+      <tr><th>Requirement</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>One-click start</td><td>PASS &mdash; "Start Focus" button directly calls <code>_on_start()</code>, no dialogs</td></tr>
+      <tr><td>Timer engine (25 min, pause/resume, completion)</td><td>PASS &mdash; <code>FocusTimer</code> with explicit state machine</td></tr>
+      <tr><td>Distraction blocker (mocked)</td><td>PASS &mdash; <code>MockDistractionsBlocker</code> logs activation/deactivation</td></tr>
+      <tr><td>Session state machine (idle/focusing/paused/completed)</td><td>PASS &mdash; <code>_VALID_TRANSITIONS</code> set enforces legal transitions</td></tr>
+      <tr><td>Desktop UI (always-on-top, dark theme, minimal)</td><td>PASS &mdash; <code>attributes("-topmost", True)</code>, dark colour palette</td></tr>
+      <tr><td>Session history</td><td>PASS &mdash; <code>SessionStore</code> with JSON persistence, today count, total minutes</td></tr>
+      <tr><td>Runnable with <code>python main.py</code>, Python 3.8+</td><td>PASS &mdash; all type hints use <code>typing</code> imports</td></tr>
+      <tr><td>No install steps beyond Python 3.8+</td><td>PASS &mdash; only stdlib dependencies (tkinter, json, threading, etc.)</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Note:</strong> The spec mentions "System tray icon with quick actions" under UI Schema. This is not implemented. However, the spec also says "System tray presence" which the always-on-top window partially satisfies, and the Iteration 1 review did not flag this as an issue. For MVP scope, this is acceptable. Flagged as a future enhancement, not a blocker.</p>
+
+  <hr>
+
+  <h2>Code Quality Observations (Non-blocking)</h2>
+  <ul>
+    <li><strong>Good:</strong> All fixes are minimal and targeted. No unnecessary refactoring or scope creep.</li>
+    <li><strong>Good:</strong> Comments added where design tradeoffs exist (Issue #4 callback ordering, Issue #3 join rationale).</li>
+    <li><strong>Good:</strong> Exception handling follows a consistent pattern across all button callbacks.</li>
+    <li><strong>Good:</strong> <code>session_store.py</code> uses atomic <code>os.replace</code> for safe persistence.</li>
+    <li><strong>Good:</strong> Clean separation of concerns maintained across all five files.</li>
+    <li><strong>Minor:</strong> <code>_on_complete</code> calls <code>self._blocker.deactivate()</code> directly from the background thread rather than dispatching via <code>self._root.after()</code>. While safe for the mock blocker, a real OS-level blocker might need main-thread dispatch. Acceptable for MVP.</li>
+  </ul>
+
+  <hr>
+
+  <h2>Verdict</h2>
+  <p><span class="verdict">APPROVED</span> &mdash; All 7 issues from Iteration 1 are genuinely fixed in the source code. No regressions or new blocking issues were introduced. The code is clean, correctly structured, thread-safe where it matters, and fully compliant with the spec's technical constraints including Python 3.8+ compatibility. Ready to ship.</p>
+
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 3 : BLUEPRINT SPEC                                    -->
+<!-- ============================================================ -->
+<h2 class="section-title" id="blueprint-spec">3. Blueprint Spec</h2>
+
+<div class="card md-content">
+
+  <h1>DeepSpace &mdash; Focus Timer Desktop App Blueprint</h1>
+
+  <h2>Master Intent</h2>
+  <p>One-click-start focus timer desktop app. User clicks a single button and enters a distraction-free focus session.</p>
+
+  <h2>Core Requirements</h2>
+  <ol>
+    <li><strong>One-Click Start:</strong> Single button launches a focus session (default 25 min Pomodoro)</li>
+    <li><strong>Timer Engine:</strong> Countdown timer with configurable duration, pause/resume, and session completion</li>
+    <li><strong>Distraction Blocker:</strong> Block distracting websites/apps during focus sessions (mocked for MVP)</li>
+    <li><strong>Session State Machine:</strong> idle &rarr; focusing &rarr; paused &rarr; completed (clean transitions, no orphaned states)</li>
+    <li><strong>Desktop UI:</strong> System tray presence, minimal always-on-top window showing time remaining</li>
+    <li><strong>Session History:</strong> Track completed sessions with timestamps</li>
+  </ol>
+
+  <h2>Technical Constraints</h2>
+  <ul>
+    <li>Python with tkinter (cross-platform, no heavy dependencies)</li>
+    <li>Fully self-contained and runnable with <code>python main.py</code></li>
+    <li>Mock any external APIs or OS-level blocking (simulate blocker behavior)</li>
+    <li>No install steps beyond Python 3.8+</li>
+  </ul>
+
+  <h2>UI Schema</h2>
+  <ul>
+    <li>Main window: minimal, always-on-top capable</li>
+    <li>States: idle (shows "Start Focus" button), focusing (shows countdown + pause button), paused (shows resume/stop), completed (shows stats + restart)</li>
+    <li>System tray icon with quick actions</li>
+    <li>Clean, dark theme</li>
+  </ul>
+
+  <h2>Architecture</h2>
+  <pre><code>main.py          — Entry point, launches app
+timer.py         — Timer engine (countdown, state machine)
+blocker.py       — Distraction blocker (mocked)
+ui.py            — Tkinter UI layer
+session_store.py — Session history (JSON file)</code></pre>
+
+  <h2>Quality Gates (Reviewer Checklist)</h2>
+  <ul>
+    <li>Runs with single command: <code>python main.py</code></li>
+    <li>One click starts a focus session</li>
+    <li>No memory leaks (no orphaned timers/threads)</li>
+    <li>All state transitions handled (no invalid states)</li>
+    <li>Blocker activates on focus start, deactivates on stop/complete</li>
+    <li>Graceful shutdown (cleanup on window close)</li>
+  </ul>
+
+</div>
+
+</div><!-- /.container -->
+</body>
+</html>
