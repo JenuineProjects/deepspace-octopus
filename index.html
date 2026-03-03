@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSpace — Octopus Multi-Agent Orchestration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0A0E1A; color: #F9FAFB; min-height: 100vh; }
+  .container { max-width: 860px; margin: 0 auto; padding: 60px 30px; }
+  .hero { text-align: center; margin-bottom: 60px; }
+  .hero h1 { font-size: 48px; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6366F1, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+  .hero .tagline { font-size: 18px; color: #9CA3AF; margin-bottom: 8px; }
+  .hero .framework { font-size: 14px; color: #6B7280; }
+  .framework a { color: #8B5CF6; text-decoration: none; }
+  .framework a:hover { text-decoration: underline; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 50px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+
+  .card { background: #111827; border: 1px solid #1F2937; border-radius: 12px; padding: 28px; transition: border-color 0.2s, transform 0.2s; text-decoration: none; color: inherit; display: block; }
+  .card:hover { border-color: #6366F1; transform: translateY(-2px); }
+  .card .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card:nth-child(1) .badge { background: rgba(59,130,246,0.15); color: #60A5FA; }
+  .card:nth-child(2) .badge { background: rgba(234,179,8,0.15); color: #FACC15; }
+  .card h2 { font-size: 20px; margin-bottom: 8px; color: #F9FAFB; }
+  .card p { font-size: 14px; color: #9CA3AF; line-height: 1.6; margin-bottom: 16px; }
+  .card .meta-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .card .meta { font-size: 12px; color: #6B7280; }
+  .card .meta strong { color: #9CA3AF; }
+
+  .section { margin-bottom: 50px; }
+  .section h3 { font-size: 16px; color: #9CA3AF; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+  .agents { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  @media (max-width: 640px) { .agents { grid-template-columns: repeat(2, 1fr); } }
+  .agent { background: #111827; border: 1px solid #1F2937; border-radius: 8px; padding: 16px; text-align: center; }
+  .agent .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-bottom: 8px; }
+  .agent .name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .agent .role { font-size: 11px; color: #6B7280; }
+  .dot-yellow { background: #FACC15; }
+  .dot-orange { background: #F97316; }
+  .dot-blue { background: #3B82F6; }
+  .dot-green { background: #22C55E; }
+  .dot-purple { background: #8B5CF6; }
+
+  .artifacts { list-style: none; }
+  .artifacts li { background: #111827; border: 1px solid #1F2937; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .artifacts .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+  .artifacts .file-name { font-size: 13px; font-family: 'Consolas', monospace; color: #D1D5DB; }
+  .artifacts .file-desc { font-size: 12px; color: #6B7280; }
+
+  .footer { text-align: center; padding-top: 30px; border-top: 1px solid #1F2937; font-size: 12px; color: #4B5563; }
+  .footer a { color: #6366F1; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>DeepSpace</h1>
+    <p class="tagline">Multi-Agent Orchestration with Octopus OS</p>
+    <p class="framework">Built with <a href="https://github.com/victordelrosal/octopus">Octopus</a> &mdash; Five agents. One orchestrator. Ship anything.</p>
+  </div>
+
+  <div class="cards">
+    <a href="report-exercise1-build-phase.html" class="card">
+      <span class="badge">Exercise 1 &mdash; Build Phase</span>
+      <h2>Review Loop Orchestration</h2>
+      <p>A Blue Maker built a one-click focus timer in Python. A Red-Orange Reviewer ran adversarial code review. Two iterations. Seven bugs caught. App approved.</p>
+      <div class="meta-row">
+        <span class="meta"><strong>Pattern:</strong> Review Loop</span>
+        <span class="meta"><strong>Agents:</strong> Maker + Reviewer</span>
+        <span class="meta"><strong>Iterations:</strong> 2 of 3</span>
+      </div>
+    </a>
+
+    <a href="report-exercise2-research-design.html" class="card">
+      <span class="badge">Exercise 2 &mdash; Research &amp; Design</span>
+      <h2>Parallel Fan-Out</h2>
+      <p>A Yellow Researcher analyzed 8 productivity apps with real market data. A Red-Orange Designer produced architecture and UI blueprints. Manager synthesized both into a build-ready blueprint.</p>
+      <div class="meta-row">
+        <span class="meta"><strong>Pattern:</strong> Fan-Out + Integration</span>
+        <span class="meta"><strong>Agents:</strong> Researcher + Designer</span>
+        <span class="meta"><strong>Output:</strong> Phase 1 Blueprint</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section">
+    <h3>The Octopus Agent Team</h3>
+    <div class="agents">
+      <div class="agent">
+        <div class="dot dot-yellow"></div>
+        <div class="name">Researcher</div>
+        <div class="role">Intelligence</div>
+      </div>
+      <div class="agent">
+        <div class="dot dot-orange"></div>
+        <div class="name">Designer</div>
+        <div class="role">Solutions</div>
+      </div>
+      <div class="agent">
+        <div class="dot dot-blue"></div>
+        <div class="name">Maker</div>
+        <div class="role">Building</div>
+      </div>
+      <div class="agent">
+        <div class="dot dot-green"></div>
+        <div class="name">Marketer</div>
+        <div class="role">Distribution</div>
+      </div>
+      <div class="agent">
+        <div class="dot dot-purple"></div>
+        <div class="name">Manager</div>
+        <div class="role">Orchestration</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Key Artifacts</h3>
+    <ul class="artifacts">
+      <li><span class="icon">&#128187;</span><div><div class="file-name">deepspace-build/maker/src/</div><div class="file-desc">Working focus timer app (5 Python files, zero dependencies)</div></div></li>
+      <li><span class="icon">&#128270;</span><div><div class="file-name">deepspace/agent-workspaces/researcher/market-brief.json</div><div class="file-desc">8-app competitive analysis with psychological research</div></div></li>
+      <li><span class="icon">&#128208;</span><div><div class="file-name">deepspace/agent-workspaces/designer/system-architecture.md</div><div class="file-desc">5-component architecture with event bus and crash recovery</div></div></li>
+      <li><span class="icon">&#127912;</span><div><div class="file-name">deepspace/agent-workspaces/designer/ui-schema.json</div><div class="file-desc">Complete UI blueprint: 7 states, 6 screens, 6 data models</div></div></li>
+      <li><span class="icon">&#128203;</span><div><div class="file-name">deepspace/integration/phase1-blueprint.md</div><div class="file-desc">Synthesized blueprint ready for Build Phase approval</div></div></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <p>March 2026 | Powered by <a href="https://github.com/victordelrosal/octopus">Octopus OS</a> + Claude Opus 4.6</p>
+  </div>
+
+</div>
+
+</body>
+</html>

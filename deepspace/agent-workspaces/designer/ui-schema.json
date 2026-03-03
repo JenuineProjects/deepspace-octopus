@@ -1,0 +1,738 @@
+{
+  "$schema": "deepspace-ui-schema-v1",
+  "meta": {
+    "agent": "designer",
+    "date": "2026-03-03",
+    "description": "Complete UI blueprint for DeepSpace: screens, state machine, data models, and component specs.",
+    "used_market_brief": false,
+    "note": "Researcher market brief was unavailable. Design proceeds from master intent."
+  },
+
+  "ui_state_machine": {
+    "states": {
+      "IDLE": {
+        "description": "Default resting state. Shows the Start Focus button and optional goal input.",
+        "screen": "HomeScreen",
+        "transitions": {
+          "START_FOCUS": {
+            "target": "FOCUSING",
+            "trigger": "User clicks Start Focus button",
+            "actions": [
+              "timer.start(goal?)",
+              "blocker.activate(blocklist)",
+              "planner.planSprints(goal) [async, non-blocking]",
+              "notification.notify('session_start')",
+              "store.createSession()"
+            ]
+          },
+          "OPEN_HISTORY": {
+            "target": "HISTORY",
+            "trigger": "User clicks history icon"
+          },
+          "OPEN_SETTINGS": {
+            "target": "SETTINGS",
+            "trigger": "User clicks settings icon (subtle, corner)"
+          }
+        }
+      },
+      "FOCUSING": {
+        "description": "Active focus sprint. Countdown timer is running. Distractions are blocked.",
+        "screen": "FocusScreen",
+        "transitions": {
+          "TIMER_DONE": {
+            "target": "BREAK",
+            "trigger": "Timer reaches zero",
+            "actions": [
+              "blocker.deactivate()",
+              "notification.notify('sprint_complete')",
+              "store.completeSprint(current_sprint)"
+            ]
+          },
+          "PAUSE": {
+            "target": "PAUSED",
+            "trigger": "User clicks pause button",
+            "actions": ["timer.pause()"]
+          },
+          "ABORT": {
+            "target": "IDLE",
+            "trigger": "User clicks abort / close",
+            "actions": [
+              "timer.abort()",
+              "blocker.deactivate()",
+              "store.saveSession(partial: true)"
+            ],
+            "confirm": true,
+            "confirm_message": "End this focus session? Your progress will be saved."
+          },
+          "SKIP_SPRINT": {
+            "target": "BREAK",
+            "trigger": "User clicks skip (hidden behind overflow menu)",
+            "actions": [
+              "timer.skip()",
+              "blocker.deactivate()",
+              "store.completeSprint(current_sprint, skipped: true)"
+            ]
+          }
+        }
+      },
+      "PAUSED": {
+        "description": "Timer is paused. Blocker remains active. UI shows paused indicator.",
+        "screen": "FocusScreen",
+        "screen_variant": "paused",
+        "transitions": {
+          "RESUME": {
+            "target": "FOCUSING",
+            "trigger": "User clicks resume",
+            "actions": ["timer.resume()"]
+          },
+          "ABORT": {
+            "target": "IDLE",
+            "trigger": "User clicks abort",
+            "actions": [
+              "timer.abort()",
+              "blocker.deactivate()",
+              "store.saveSession(partial: true)"
+            ],
+            "confirm": true
+          }
+        },
+        "auto_resume_timeout_minutes": 30,
+        "auto_resume_action": "ABORT"
+      },
+      "BREAK": {
+        "description": "Break between sprints. Blocker is off. Shows break timer and next sprint preview.",
+        "screen": "BreakScreen",
+        "transitions": {
+          "BREAK_DONE_HAS_NEXT": {
+            "target": "FOCUSING",
+            "trigger": "Break timer ends AND sprint queue has more cards",
+            "condition": "sprint_queue.length > 0",
+            "actions": [
+              "timer.start(next_sprint)",
+              "blocker.activate(blocklist)",
+              "notification.notify('break_over')"
+            ]
+          },
+          "BREAK_DONE_NO_NEXT": {
+            "target": "COMPLETED",
+            "trigger": "Break timer ends AND sprint queue is empty",
+            "condition": "sprint_queue.length === 0",
+            "actions": ["notification.notify('all_complete')"]
+          },
+          "SKIP_BREAK": {
+            "target": "FOCUSING",
+            "trigger": "User clicks 'Start Next Sprint' early",
+            "condition": "sprint_queue.length > 0",
+            "actions": [
+              "timer.start(next_sprint)",
+              "blocker.activate(blocklist)"
+            ]
+          },
+          "END_SESSION": {
+            "target": "COMPLETED",
+            "trigger": "User clicks 'End Session'",
+            "actions": ["store.saveSession(complete: true)"]
+          }
+        }
+      },
+      "COMPLETED": {
+        "description": "All sprints done or user ended session. Shows summary.",
+        "screen": "CompletedScreen",
+        "transitions": {
+          "DISMISS": {
+            "target": "IDLE",
+            "trigger": "User clicks 'Done' or auto-dismiss after 10s"
+          },
+          "START_ANOTHER": {
+            "target": "IDLE",
+            "trigger": "User clicks 'Start Another'"
+          }
+        }
+      },
+      "HISTORY": {
+        "description": "Session history view. Accessible from IDLE only.",
+        "screen": "HistoryScreen",
+        "transitions": {
+          "BACK": {
+            "target": "IDLE",
+            "trigger": "User clicks back / escape"
+          }
+        }
+      },
+      "SETTINGS": {
+        "description": "Settings panel. Accessible from IDLE only.",
+        "screen": "SettingsScreen",
+        "transitions": {
+          "BACK": {
+            "target": "IDLE",
+            "trigger": "User clicks back / escape"
+          }
+        }
+      }
+    },
+    "initial_state": "IDLE"
+  },
+
+  "screens": {
+    "HomeScreen": {
+      "description": "The landing screen. Embodies one-click-start. Minimal, centered layout.",
+      "layout": "centered_vertical",
+      "components": [
+        {
+          "id": "app_title",
+          "type": "text",
+          "content": "DeepSpace",
+          "style": "large_heading",
+          "position": "top_center"
+        },
+        {
+          "id": "goal_input",
+          "type": "text_input",
+          "placeholder": "What do you want to accomplish? (optional)",
+          "style": "subtle_collapsed",
+          "visibility": "auto_show_on_focus_or_hover",
+          "default_visibility": "collapsed_single_line",
+          "max_length": 500,
+          "position": "center"
+        },
+        {
+          "id": "start_button",
+          "type": "button",
+          "label": "Start Focus",
+          "style": "primary_large",
+          "action": "START_FOCUS",
+          "position": "center",
+          "shortcut": "Enter"
+        },
+        {
+          "id": "streak_badge",
+          "type": "badge",
+          "content": "dynamic: streak count",
+          "style": "subtle_pill",
+          "visibility": "show_if_streak_gt_0",
+          "position": "below_button"
+        },
+        {
+          "id": "history_icon",
+          "type": "icon_button",
+          "icon": "clock",
+          "action": "OPEN_HISTORY",
+          "style": "ghost",
+          "position": "bottom_left",
+          "tooltip": "Session History"
+        },
+        {
+          "id": "settings_icon",
+          "type": "icon_button",
+          "icon": "gear",
+          "action": "OPEN_SETTINGS",
+          "style": "ghost",
+          "position": "bottom_right",
+          "tooltip": "Settings"
+        }
+      ]
+    },
+
+    "FocusScreen": {
+      "description": "Active focus session. Dominant countdown timer. Minimal distractions.",
+      "layout": "centered_vertical",
+      "background": "dim_ambient",
+      "components": [
+        {
+          "id": "countdown_timer",
+          "type": "timer_display",
+          "format": "MM:SS",
+          "style": "hero_large",
+          "position": "center",
+          "progress_ring": true,
+          "progress_ring_style": "circular_fill"
+        },
+        {
+          "id": "sprint_card",
+          "type": "card",
+          "visibility": "show_if_sprint_has_data",
+          "position": "below_timer",
+          "fields": {
+            "title": "current sprint title",
+            "description": "current sprint description (truncated, expandable)",
+            "sprint_number": "e.g. Sprint 2 of 5"
+          }
+        },
+        {
+          "id": "pause_button",
+          "type": "button",
+          "label": "Pause",
+          "style": "secondary_small",
+          "action": "PAUSE",
+          "position": "bottom_center",
+          "shortcut": "Space"
+        },
+        {
+          "id": "resume_button",
+          "type": "button",
+          "label": "Resume",
+          "style": "primary_small",
+          "action": "RESUME",
+          "position": "bottom_center",
+          "shortcut": "Space",
+          "visibility": "show_in_paused_variant_only"
+        },
+        {
+          "id": "paused_overlay",
+          "type": "overlay",
+          "content": "Paused",
+          "style": "frosted_glass",
+          "visibility": "show_in_paused_variant_only"
+        },
+        {
+          "id": "abort_button",
+          "type": "icon_button",
+          "icon": "x",
+          "action": "ABORT",
+          "style": "ghost_danger",
+          "position": "top_right",
+          "tooltip": "End Session"
+        },
+        {
+          "id": "overflow_menu",
+          "type": "menu",
+          "icon": "dots_vertical",
+          "position": "top_right_secondary",
+          "items": [
+            { "label": "Skip Sprint", "action": "SKIP_SPRINT" },
+            { "label": "End Session", "action": "ABORT" }
+          ]
+        },
+        {
+          "id": "blocked_toast",
+          "type": "toast",
+          "trigger": "blocker:attempt",
+          "template": "Blocked: {domain}",
+          "duration_ms": 2000,
+          "style": "subtle_bottom",
+          "position": "bottom"
+        }
+      ]
+    },
+
+    "BreakScreen": {
+      "description": "Break between sprints. Relaxed visual tone.",
+      "layout": "centered_vertical",
+      "background": "light_ambient",
+      "components": [
+        {
+          "id": "break_label",
+          "type": "text",
+          "content": "Take a Break",
+          "style": "medium_heading"
+        },
+        {
+          "id": "break_timer",
+          "type": "timer_display",
+          "format": "M:SS",
+          "style": "medium",
+          "position": "center"
+        },
+        {
+          "id": "next_sprint_preview",
+          "type": "card",
+          "visibility": "show_if_next_sprint_exists",
+          "position": "below_timer",
+          "style": "preview_muted",
+          "fields": {
+            "label": "Up Next",
+            "title": "next sprint title"
+          }
+        },
+        {
+          "id": "start_next_button",
+          "type": "button",
+          "label": "Start Next Sprint",
+          "style": "secondary_medium",
+          "action": "SKIP_BREAK",
+          "visibility": "show_if_next_sprint_exists",
+          "position": "below_preview"
+        },
+        {
+          "id": "end_session_button",
+          "type": "button",
+          "label": "End Session",
+          "style": "ghost_small",
+          "action": "END_SESSION",
+          "position": "bottom_center"
+        }
+      ]
+    },
+
+    "CompletedScreen": {
+      "description": "Session summary. Positive reinforcement. Quick dismissal.",
+      "layout": "centered_vertical",
+      "auto_dismiss_seconds": 10,
+      "components": [
+        {
+          "id": "completion_icon",
+          "type": "icon",
+          "icon": "checkmark_circle",
+          "style": "hero_success"
+        },
+        {
+          "id": "completion_message",
+          "type": "text",
+          "content": "Great work!",
+          "style": "large_heading"
+        },
+        {
+          "id": "session_summary",
+          "type": "stats_card",
+          "fields": {
+            "total_focus_time": "formatted duration",
+            "sprints_completed": "count",
+            "blocked_attempts": "count"
+          }
+        },
+        {
+          "id": "done_button",
+          "type": "button",
+          "label": "Done",
+          "style": "primary_medium",
+          "action": "DISMISS"
+        },
+        {
+          "id": "start_another_button",
+          "type": "button",
+          "label": "Start Another",
+          "style": "ghost_small",
+          "action": "START_ANOTHER"
+        }
+      ]
+    },
+
+    "HistoryScreen": {
+      "description": "Scrollable list of past sessions. Accessible but not prominent.",
+      "layout": "list_with_header",
+      "components": [
+        {
+          "id": "back_button",
+          "type": "icon_button",
+          "icon": "arrow_left",
+          "action": "BACK",
+          "position": "top_left"
+        },
+        {
+          "id": "history_title",
+          "type": "text",
+          "content": "Session History",
+          "style": "medium_heading"
+        },
+        {
+          "id": "stats_summary",
+          "type": "stats_bar",
+          "fields": {
+            "total_sessions": "count",
+            "total_focus_hours": "formatted",
+            "current_streak": "days"
+          },
+          "position": "below_header"
+        },
+        {
+          "id": "session_list",
+          "type": "list",
+          "item_template": {
+            "date": "formatted date",
+            "goal": "goal text or 'Quick Focus'",
+            "duration": "total focus time",
+            "sprints_completed": "count",
+            "status": "completed | aborted"
+          },
+          "sort": "date_descending",
+          "empty_state": "No sessions yet. Start your first focus session!"
+        }
+      ]
+    },
+
+    "SettingsScreen": {
+      "description": "Progressive disclosure settings. Sensible defaults for everything.",
+      "layout": "scrollable_form",
+      "components": [
+        {
+          "id": "back_button",
+          "type": "icon_button",
+          "icon": "arrow_left",
+          "action": "BACK",
+          "position": "top_left"
+        },
+        {
+          "id": "settings_title",
+          "type": "text",
+          "content": "Settings",
+          "style": "medium_heading"
+        },
+        {
+          "id": "timer_section",
+          "type": "section",
+          "label": "Timer",
+          "disclosure": "tier_2",
+          "fields": [
+            { "id": "focus_duration", "type": "slider", "label": "Focus Duration", "min": 5, "max": 90, "step": 5, "default": 25, "unit": "minutes" },
+            { "id": "short_break", "type": "slider", "label": "Short Break", "min": 1, "max": 30, "step": 1, "default": 5, "unit": "minutes" },
+            { "id": "long_break", "type": "slider", "label": "Long Break", "min": 5, "max": 60, "step": 5, "default": 15, "unit": "minutes" },
+            { "id": "long_break_interval", "type": "stepper", "label": "Long Break Every", "min": 2, "max": 8, "default": 4, "unit": "sprints" },
+            { "id": "auto_start_break", "type": "toggle", "label": "Auto-start Breaks", "default": true },
+            { "id": "auto_start_next", "type": "toggle", "label": "Auto-start Next Sprint", "default": false }
+          ]
+        },
+        {
+          "id": "blocker_section",
+          "type": "section",
+          "label": "Distraction Blocker",
+          "disclosure": "tier_2",
+          "fields": [
+            { "id": "blocker_enabled", "type": "toggle", "label": "Enable Blocker", "default": true },
+            { "id": "blocklist_editor", "type": "tag_input", "label": "Blocked Sites", "default": "uses_default_blocklist", "placeholder": "Add a website to block..." },
+            { "id": "blocker_mode", "type": "radio", "label": "Blocker Method", "options": ["hosts", "proxy"], "default": "hosts", "disclosure": "tier_3" }
+          ]
+        },
+        {
+          "id": "ai_section",
+          "type": "section",
+          "label": "AI Sprint Planner",
+          "disclosure": "tier_3",
+          "fields": [
+            { "id": "ai_enabled", "type": "toggle", "label": "Enable AI Planner", "default": true },
+            { "id": "ai_api_key", "type": "password_input", "label": "API Key", "placeholder": "Paste your API key", "help_text": "Optional. The app works fully without this." },
+            { "id": "ai_provider", "type": "select", "label": "AI Provider", "options": ["openai", "anthropic", "local"], "default": "openai" }
+          ]
+        },
+        {
+          "id": "notifications_section",
+          "type": "section",
+          "label": "Notifications",
+          "disclosure": "tier_2",
+          "fields": [
+            { "id": "sound_enabled", "type": "toggle", "label": "Sound Alerts", "default": true },
+            { "id": "desktop_notifications", "type": "toggle", "label": "Desktop Notifications", "default": true }
+          ]
+        },
+        {
+          "id": "data_section",
+          "type": "section",
+          "label": "Data",
+          "disclosure": "tier_3",
+          "fields": [
+            { "id": "export_data", "type": "button", "label": "Export Session Data", "action": "export_json" },
+            { "id": "clear_data", "type": "button", "label": "Clear All Data", "action": "clear_data", "style": "danger", "confirm": true }
+          ]
+        }
+      ]
+    }
+  },
+
+  "data_models": {
+    "Session": {
+      "description": "A single focus session from start to finish.",
+      "schema": {
+        "type": "object",
+        "required": ["id", "started_at", "status"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "ended_at": { "type": "string", "format": "date-time" },
+          "goal": { "type": "string", "description": "User's goal text. Null if one-click start.", "nullable": true },
+          "status": { "type": "string", "enum": ["active", "completed", "aborted"] },
+          "total_focus_ms": { "type": "integer", "description": "Total milliseconds spent in FOCUSING state" },
+          "total_break_ms": { "type": "integer", "description": "Total milliseconds spent in BREAK state" },
+          "sprints": {
+            "type": "array",
+            "items": { "$ref": "#/data_models/SprintRecord" }
+          },
+          "blocked_attempts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domain": { "type": "string" },
+                "timestamp": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "SprintCard": {
+      "description": "A planned sprint card generated by the AI planner or as a default.",
+      "schema": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string", "maxLength": 120, "description": "Action-verb-first title, e.g. 'Write introduction paragraph'" },
+          "description": { "type": "string", "maxLength": 500, "description": "Optional details about what to accomplish" },
+          "estimated_minutes": { "type": "integer", "default": 25, "minimum": 5, "maximum": 90 },
+          "order": { "type": "integer", "description": "Position in the sprint queue" }
+        }
+      }
+    },
+
+    "SprintRecord": {
+      "description": "The outcome of a sprint within a session.",
+      "schema": {
+        "type": "object",
+        "required": ["sprint_card_id", "started_at", "status"],
+        "properties": {
+          "sprint_card_id": { "type": "string", "format": "uuid" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "ended_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["completed", "skipped", "aborted"] },
+          "actual_focus_ms": { "type": "integer" }
+        }
+      }
+    },
+
+    "Settings": {
+      "description": "User settings with sensible defaults. Every field has a default; the file can be empty on first run.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "timer": {
+            "type": "object",
+            "properties": {
+              "focus_duration_minutes": { "type": "integer", "default": 25 },
+              "short_break_minutes": { "type": "integer", "default": 5 },
+              "long_break_minutes": { "type": "integer", "default": 15 },
+              "long_break_interval": { "type": "integer", "default": 4 },
+              "auto_start_break": { "type": "boolean", "default": true },
+              "auto_start_next_sprint": { "type": "boolean", "default": false }
+            }
+          },
+          "blocker": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean", "default": true },
+              "mode": { "type": "string", "enum": ["hosts", "proxy"], "default": "hosts" },
+              "custom_domains": { "type": "array", "items": { "type": "string" }, "default": [] }
+            }
+          },
+          "ai": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean", "default": true },
+              "provider": { "type": "string", "enum": ["openai", "anthropic", "local"], "default": "openai" },
+              "api_key": { "type": "string", "default": "" }
+            }
+          },
+          "notifications": {
+            "type": "object",
+            "properties": {
+              "sound_enabled": { "type": "boolean", "default": true },
+              "desktop_notifications": { "type": "boolean", "default": true }
+            }
+          }
+        }
+      }
+    },
+
+    "Blocklist": {
+      "description": "The combined default + custom blocklist.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "object",
+            "properties": {
+              "social": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["twitter.com", "x.com", "facebook.com", "instagram.com", "reddit.com", "tiktok.com", "linkedin.com"]
+              },
+              "video": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["youtube.com", "netflix.com", "twitch.tv", "disneyplus.com"]
+              },
+              "news": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["news.ycombinator.com", "cnn.com", "bbc.com"]
+              },
+              "custom": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": []
+              }
+            }
+          },
+          "disabled_categories": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [],
+            "description": "Category names the user has opted out of blocking"
+          }
+        }
+      }
+    },
+
+    "Stats": {
+      "description": "Aggregated statistics derived from session history.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "total_sessions": { "type": "integer" },
+          "total_focus_ms": { "type": "integer" },
+          "total_sprints_completed": { "type": "integer" },
+          "total_blocked_attempts": { "type": "integer" },
+          "current_streak_days": { "type": "integer" },
+          "longest_streak_days": { "type": "integer" },
+          "average_session_minutes": { "type": "number" }
+        }
+      }
+    }
+  },
+
+  "design_tokens": {
+    "description": "Visual design guidance for implementers. Not prescriptive about specific framework.",
+    "color_philosophy": "Dark-first. Deep space theme. Calming, not stimulating.",
+    "suggested_palette": {
+      "background_primary": "#0A0E1A",
+      "background_secondary": "#111827",
+      "surface": "#1F2937",
+      "text_primary": "#F9FAFB",
+      "text_secondary": "#9CA3AF",
+      "accent_focus": "#6366F1",
+      "accent_break": "#34D399",
+      "accent_danger": "#EF4444",
+      "accent_success": "#10B981"
+    },
+    "typography": {
+      "timer_display": "monospace or tabular-nums, 48-72px",
+      "heading": "system sans-serif, 24px, weight 600",
+      "body": "system sans-serif, 14-16px, weight 400",
+      "caption": "system sans-serif, 12px, weight 400, muted color"
+    },
+    "spacing": {
+      "philosophy": "Generous whitespace. Components breathe.",
+      "base_unit": 8,
+      "note": "All spacing should be multiples of the base unit"
+    },
+    "animation": {
+      "philosophy": "Subtle and purposeful. Never flashy.",
+      "timer_tick": "smooth countdown, no jarring jumps",
+      "state_transitions": "fade/crossfade, 200-300ms ease",
+      "progress_ring": "smooth arc animation synced to timer"
+    },
+    "window": {
+      "default_size": { "width": 400, "height": 500 },
+      "min_size": { "width": 320, "height": 400 },
+      "resizable": true,
+      "always_on_top_option": true,
+      "system_tray": true
+    }
+  },
+
+  "keyboard_shortcuts": {
+    "Enter": "Start Focus (from IDLE)",
+    "Space": "Pause / Resume (during FOCUSING)",
+    "Escape": "Back / Dismiss",
+    "Ctrl+Q": "Quit app (with confirmation if session active)"
+  }
+}

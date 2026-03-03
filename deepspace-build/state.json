@@ -1,0 +1,11 @@
+{
+  "project": "DeepSpace",
+  "phase": "build",
+  "iteration": 2,
+  "max_iterations": 3,
+  "status": "approved",
+  "maker_status": "draft_ready",
+  "reviewer_status": "approved",
+  "approved": true,
+  "completed_at": "2026-03-03"
+}
