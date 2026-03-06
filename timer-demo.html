@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSpace Focus Timer — Live Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0A0E1A;
+    color: #F9FAFB;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  a { color: #6366F1; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back { margin-bottom: 30px; font-size: 14px; }
+  .page-title { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: #9CA3AF; margin-bottom: 30px; }
+
+  /* Timer widget */
+  .timer-window {
+    width: 340px;
+    background: #1a1a2e;
+    border-radius: 16px;
+    border: 1px solid #2d3748;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+  .timer-titlebar {
+    background: #16213e;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #2d3748;
+  }
+  .titlebar-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #d63031; }
+  .dot-y { background: #fdcb6e; }
+  .dot-g { background: #00b894; }
+  .titlebar-text { font-size: 12px; color: #636e72; margin-left: 8px; }
+
+  .timer-body { padding: 24px; text-align: center; }
+  .app-title { font-size: 20px; font-weight: 700; color: #e0e0e0; margin-bottom: 2px; }
+  .app-subtitle { font-size: 10px; color: #636e72; margin-bottom: 20px; }
+
+  .timer-card {
+    background: #16213e;
+    border-radius: 10px;
+    padding: 24px 16px 18px;
+    margin-bottom: 20px;
+  }
+  .timer-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 54px;
+    font-weight: 700;
+    color: #00cec9;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    transition: color 0.3s;
+  }
+  .timer-display.completed { color: #00b894; }
+  .timer-status { font-size: 12px; color: #636e72; }
+
+  /* Progress ring */
+  .progress-ring { margin: 0 auto 12px; }
+  .progress-ring-bg { stroke: #2d3748; }
+  .progress-ring-fill { stroke: #6366F1; transition: stroke-dashoffset 0.5s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
+
+  .btn-row { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .timer-btn {
+    width: 200px;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .timer-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .timer-btn:active { transform: translateY(0); }
+  .btn-start { background: #00b894; }
+  .btn-pause { background: #fdcb6e; color: #333; }
+  .btn-stop { background: #d63031; }
+  .btn-resume { background: #00b894; }
+  .btn-hidden { display: none; }
+
+  .stats { font-size: 11px; color: #636e72; padding-top: 12px; border-top: 1px solid #2d3748; margin-top: 16px; }
+
+  /* Blocker panel */
+  .blocker-panel {
+    width: 340px;
+    background: #111827;
+    border: 1px solid #1F2937;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .blocker-title { font-size: 12px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .blocker-list { list-style: none; }
+  .blocker-list li {
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    color: #4B5563;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s;
+  }
+  .blocker-list li.blocked { color: #EF4444; }
+  .blocker-list li .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #2d3748;
+    transition: background 0.3s;
+  }
+  .blocker-list li.blocked .status-dot { background: #EF4444; }
+
+  /* Info note */
+  .info-note {
+    width: 340px;
+    font-size: 12px;
+    color: #6B7280;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .info-note strong { color: #9CA3AF; }
+
+  .footer { margin-top: 40px; font-size: 12px; color: #4B5563; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="back"><a href="index.html">&larr; Back to Home</a></div>
+<div class="page-title">Focus Timer — Live Demo</div>
+<p class="page-sub">Interactive HTML/JS recreation of the Python Tkinter app built by the Blue Maker agent</p>
+
+<!-- Timer widget -->
+<div class="timer-window">
+  <div class="timer-titlebar">
+    <span class="titlebar-dot dot-r"></span>
+    <span class="titlebar-dot dot-y"></span>
+    <span class="titlebar-dot dot-g"></span>
+    <span class="titlebar-text">DeepSpace</span>
+  </div>
+  <div class="timer-body">
+    <div class="app-title">DeepSpace</div>
+    <div class="app-subtitle">Focus Timer</div>
+
+    <div class="timer-card">
+      <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
+        <circle class="progress-ring-bg" cx="70" cy="70" r="60" fill="none" stroke-width="6"/>
+        <circle id="progressFill" class="progress-ring-fill" cx="70" cy="70" r="60" fill="none" stroke-width="6"
+                stroke-dasharray="376.99" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+      <div id="timerDisplay" class="timer-display">25:00</div>
+      <div id="timerStatus" class="timer-status">Ready to focus</div>
+    </div>
+
+    <div class="btn-row">
+      <button id="btnPrimary" class="timer-btn btn-start" onclick="onPrimary()">Start Focus</button>
+      <button id="btnSecondary" class="timer-btn btn-stop btn-hidden" onclick="onSecondary()">Stop</button>
+    </div>
+
+    <div class="stats">
+      <span id="statsText">Today: 0 sessions | Total: 0 min focused</span>
+    </div>
+  </div>
+</div>
+
+<!-- Blocker simulation -->
+<div class="blocker-panel">
+  <div class="blocker-title">Distraction Blocker</div>
+  <ul class="blocker-list" id="blockerList">
+    <li><span class="status-dot"></span>twitter.com</li>
+    <li><span class="status-dot"></span>reddit.com</li>
+    <li><span class="status-dot"></span>youtube.com</li>
+    <li><span class="status-dot"></span>facebook.com</li>
+    <li><span class="status-dot"></span>instagram.com</li>
+    <li><span class="status-dot"></span>tiktok.com</li>
+    <li><span class="status-dot"></span>news.ycombinator.com</li>
+  </ul>
+</div>
+
+<div class="info-note">
+  <strong>Note:</strong> This is a browser recreation of the Python desktop app. The timer runs at 1-second intervals.
+  The real app uses Tkinter with thread-safe state machine transitions.
+  Set to <strong>1 minute</strong> for demo purposes (original: 25 min).
+</div>
+
+<div class="footer">
+  <p>Jennifer, Abrek &amp; Blossom | <a href="exercise1-outputs.html">View Full Source Code</a> | Powered by Octopus OS + Claude Opus 4.6</p>
+</div>
+
+<script>
+// Timer state machine (mirrors timer.py)
+const STATES = { IDLE: 'idle', FOCUSING: 'focusing', PAUSED: 'paused', COMPLETED: 'completed' };
+const DEMO_DURATION = 60; // 1 minute for demo
+
+let state = STATES.IDLE;
+let remaining = DEMO_DURATION;
+let totalDuration = DEMO_DURATION;
+let intervalId = null;
+let sessionsToday = 0;
+let totalMinutes = 0;
+
+const display = document.getElementById('timerDisplay');
+const status = document.getElementById('timerStatus');
+const btnPrimary = document.getElementById('btnPrimary');
+const btnSecondary = document.getElementById('btnSecondary');
+const progressFill = document.getElementById('progressFill');
+const statsText = document.getElementById('statsText');
+const blockerItems = document.querySelectorAll('#blockerList li');
+
+const circumference = 2 * Math.PI * 60; // r=60
+
+function fmt(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function updateProgress() {
+  const fraction = remaining / totalDuration;
+  progressFill.style.strokeDashoffset = circumference * fraction;
+}
+
+function setBlocker(active) {
+  blockerItems.forEach(li => {
+    if (active) li.classList.add('blocked');
+    else li.classList.remove('blocked');
+  });
+}
+
+function showIdle() {
+  state = STATES.IDLE;
+  remaining = totalDuration;
+  display.textContent = fmt(remaining);
+  display.classList.remove('completed');
+  status.textContent = 'Ready to focus';
+  btnPrimary.textContent = 'Start Focus';
+  btnPrimary.className = 'timer-btn btn-start';
+  btnSecondary.classList.add('btn-hidden');
+  progressFill.style.strokeDashoffset = 0;
+  setBlocker(false);
+}
+
+function showFocusing() {
+  state = STATES.FOCUSING;
+  status.textContent = 'Focusing...';
+  btnPrimary.textContent = 'Pause';
+  btnPrimary.className = 'timer-btn btn-pause';
+  btnSecondary.textContent = 'Stop';
+  btnSecondary.className = 'timer-btn btn-stop';
+  btnSecondary.classList.remove('btn-hidden');
+  setBlocker(true);
+}
+
+function showPaused() {
+  state = STATES.PAUSED;
+  status.textContent = 'Paused';
+  btnPrimary.textContent = 'Resume';
+  btnPrimary.className = 'timer-btn btn-resume';
+}
+
+function showCompleted() {
+  state = STATES.COMPLETED;
+  display.textContent = '00:00';
+  display.classList.add('completed');
+  status.textContent = 'Session complete!';
+  btnPrimary.textContent = 'Start Again';
+  btnPrimary.className = 'timer-btn btn-start';
+  btnSecondary.classList.add('btn-hidden');
+  sessionsToday++;
+  totalMinutes += totalDuration / 60;
+  statsText.textContent = 'Today: ' + sessionsToday + ' session' + (sessionsToday !== 1 ? 's' : '') + ' | Total: ' + totalMinutes.toFixed(0) + ' min focused';
+  setBlocker(false);
+}
+
+function tick() {
+  if (state !== STATES.FOCUSING) return;
+  remaining--;
+  display.textContent = fmt(remaining);
+  updateProgress();
+  if (remaining <= 0) {
+    clearInterval(intervalId);
+    intervalId = null;
+    showCompleted();
+  }
+}
+
+function startTimer() {
+  remaining = totalDuration;
+  progressFill.style.strokeDashoffset = 0;
+  showFocusing();
+  intervalId = setInterval(tick, 1000);
+}
+
+function onPrimary() {
+  switch (state) {
+    case STATES.IDLE:
+      startTimer();
+      break;
+    case STATES.FOCUSING:
+      clearInterval(intervalId);
+      intervalId = null;
+      showPaused();
+      break;
+    case STATES.PAUSED:
+      showFocusing();
+      intervalId = setInterval(tick, 1000);
+      break;
+    case STATES.COMPLETED:
+      startTimer();
+      break;
+  }
+}
+
+function onSecondary() {
+  if (state === STATES.FOCUSING || state === STATES.PAUSED) {
+    clearInterval(intervalId);
+    intervalId = null;
+    showIdle();
+  }
+}
+</script>
+
+</body>
+</html>

@@ -7,35 +7,52 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0A0E1A; color: #F9FAFB; min-height: 100vh; }
-  .container { max-width: 860px; margin: 0 auto; padding: 60px 30px; }
-  .hero { text-align: center; margin-bottom: 60px; }
-  .hero h1 { font-size: 48px; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6366F1, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
-  .hero .tagline { font-size: 18px; color: #9CA3AF; margin-bottom: 8px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 60px 30px; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 50px; }
+  .hero h1 { font-size: 52px; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6366F1, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+  .hero .tagline { font-size: 18px; color: #9CA3AF; margin-bottom: 6px; }
   .hero .framework { font-size: 14px; color: #6B7280; }
   .framework a { color: #8B5CF6; text-decoration: none; }
   .framework a:hover { text-decoration: underline; }
 
-  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 50px; }
-  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  /* Team banner */
+  .team-banner { text-align: center; margin-bottom: 50px; padding: 24px 20px; background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08)); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; }
+  .team-banner h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; color: #6366F1; margin-bottom: 10px; font-weight: 600; }
+  .team-names { font-size: 22px; font-weight: 600; color: #E0E7FF; }
+  .team-course { font-size: 13px; color: #6B7280; margin-top: 6px; }
 
-  .card { background: #111827; border: 1px solid #1F2937; border-radius: 12px; padding: 28px; transition: border-color 0.2s, transform 0.2s; text-decoration: none; color: inherit; display: block; }
-  .card:hover { border-color: #6366F1; transform: translateY(-2px); }
-  .card .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .card:nth-child(1) .badge { background: rgba(59,130,246,0.15); color: #60A5FA; }
-  .card:nth-child(2) .badge { background: rgba(234,179,8,0.15); color: #FACC15; }
-  .card h2 { font-size: 20px; margin-bottom: 8px; color: #F9FAFB; }
-  .card p { font-size: 14px; color: #9CA3AF; line-height: 1.6; margin-bottom: 16px; }
-  .card .meta-row { display: flex; gap: 16px; flex-wrap: wrap; }
-  .card .meta { font-size: 12px; color: #6B7280; }
-  .card .meta strong { color: #9CA3AF; }
-  .card .links { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1F2937; display: flex; gap: 16px; }
-  .card .links a { font-size: 12px; color: #6366F1; text-decoration: none; font-weight: 600; }
-  .card .links a:hover { text-decoration: underline; }
+  /* Section headings */
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: #6366F1; font-weight: 600; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid #1F2937; }
 
-  .section { margin-bottom: 50px; }
-  .section h3 { font-size: 16px; color: #9CA3AF; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  /* Exercise blocks */
+  .exercise { background: #111827; border: 1px solid #1F2937; border-radius: 12px; padding: 30px; margin-bottom: 24px; }
+  .exercise:hover { border-color: #2d3748; }
+  .exercise-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .exercise-number { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ex1-badge { background: rgba(59,130,246,0.15); color: #60A5FA; }
+  .ex2-badge { background: rgba(234,179,8,0.15); color: #FACC15; }
+  .exercise h3 { font-size: 22px; font-weight: 700; color: #F9FAFB; margin-bottom: 10px; }
+  .exercise .subtitle { font-size: 13px; color: #6B7280; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .exercise p { font-size: 14px; color: #9CA3AF; line-height: 1.7; margin-bottom: 18px; }
+  .exercise .meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+  .exercise .meta { font-size: 12px; color: #6B7280; }
+  .exercise .meta strong { color: #9CA3AF; }
 
-  .agents { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  /* Links row */
+  .link-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .link-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+  .link-btn:hover { transform: translateY(-1px); }
+  .btn-report { background: rgba(99,102,241,0.12); color: #818CF8; border: 1px solid rgba(99,102,241,0.25); }
+  .btn-report:hover { background: rgba(99,102,241,0.2); }
+  .btn-output { background: rgba(251,191,36,0.1); color: #FBBF24; border: 1px solid rgba(251,191,36,0.2); }
+  .btn-output:hover { background: rgba(251,191,36,0.18); }
+  .btn-code { background: rgba(34,197,94,0.1); color: #4ADE80; border: 1px solid rgba(34,197,94,0.2); }
+  .btn-code:hover { background: rgba(34,197,94,0.18); }
+
+  /* Agent team */
+  .agents { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 50px; }
   @media (max-width: 640px) { .agents { grid-template-columns: repeat(2, 1fr); } }
   .agent { background: #111827; border: 1px solid #1F2937; border-radius: 8px; padding: 16px; text-align: center; }
   .agent .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-bottom: 8px; }
@@ -47,99 +64,115 @@
   .dot-green { background: #22C55E; }
   .dot-purple { background: #8B5CF6; }
 
-  .artifacts { list-style: none; }
+  /* Artifacts */
+  .artifacts { list-style: none; margin-bottom: 50px; }
   .artifacts li { background: #111827; border: 1px solid #1F2937; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
   .artifacts .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
   .artifacts .file-name { font-size: 13px; font-family: 'Consolas', monospace; color: #D1D5DB; }
   .artifacts .file-desc { font-size: 12px; color: #6B7280; }
 
+  /* Footer */
   .footer { text-align: center; padding-top: 30px; border-top: 1px solid #1F2937; font-size: 12px; color: #4B5563; }
   .footer a { color: #6366F1; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 
 <div class="container">
 
+  <!-- Hero -->
   <div class="hero">
     <h1>DeepSpace</h1>
     <p class="tagline">Multi-Agent Orchestration with Octopus OS</p>
     <p class="framework">Built with <a href="https://github.com/victordelrosal/octopus">Octopus</a> &mdash; Five agents. One orchestrator. Ship anything.</p>
   </div>
 
-  <div class="cards">
-    <a href="report-exercise1-build-phase.html" class="card">
-      <span class="badge">Exercise 1 &mdash; Build Phase</span>
-      <h2>Review Loop Orchestration</h2>
-      <p>A Blue Maker built a one-click focus timer in Python. A Red-Orange Reviewer ran adversarial code review. Two iterations. Seven bugs caught. App approved.</p>
-      <div class="meta-row">
-        <span class="meta"><strong>Pattern:</strong> Review Loop</span>
-        <span class="meta"><strong>Agents:</strong> Maker + Reviewer</span>
-        <span class="meta"><strong>Iterations:</strong> 2 of 3</span>
-      </div>
-      <div class="links">
-        <a href="report-exercise1-build-phase.html" onclick="event.stopPropagation()">Report</a>
-        <a href="exercise1-outputs.html" onclick="event.stopPropagation()">View Code &amp; Outputs</a>
-      </div>
-    </a>
-
-    <a href="report-exercise2-research-design.html" class="card">
-      <span class="badge">Exercise 2 &mdash; Research &amp; Design</span>
-      <h2>Parallel Fan-Out</h2>
-      <p>A Yellow Researcher analyzed 8 productivity apps with real market data. A Red-Orange Designer produced architecture and UI blueprints. Manager synthesized both into a build-ready blueprint.</p>
-      <div class="meta-row">
-        <span class="meta"><strong>Pattern:</strong> Fan-Out + Integration</span>
-        <span class="meta"><strong>Agents:</strong> Researcher + Designer</span>
-        <span class="meta"><strong>Output:</strong> Phase 1 Blueprint</span>
-      </div>
-      <div class="links">
-        <a href="report-exercise2-research-design.html" onclick="event.stopPropagation()">Report</a>
-        <a href="exercise2-outputs.html" onclick="event.stopPropagation()">View Research &amp; Architecture</a>
-      </div>
-    </a>
+  <!-- Team -->
+  <div class="team-banner">
+    <h2>Project Team</h2>
+    <div class="team-names">Jennifer &middot; Abrek &middot; Blossom</div>
+    <div class="team-course">Customer Engagement and AI &mdash; March 2026</div>
   </div>
 
-  <div class="section">
-    <h3>The Octopus Agent Team</h3>
-    <div class="agents">
-      <div class="agent">
-        <div class="dot dot-yellow"></div>
-        <div class="name">Researcher</div>
-        <div class="role">Intelligence</div>
-      </div>
-      <div class="agent">
-        <div class="dot dot-orange"></div>
-        <div class="name">Designer</div>
-        <div class="role">Solutions</div>
-      </div>
-      <div class="agent">
-        <div class="dot dot-blue"></div>
-        <div class="name">Maker</div>
-        <div class="role">Building</div>
-      </div>
-      <div class="agent">
-        <div class="dot dot-green"></div>
-        <div class="name">Marketer</div>
-        <div class="role">Distribution</div>
-      </div>
-      <div class="agent">
-        <div class="dot dot-purple"></div>
-        <div class="name">Manager</div>
-        <div class="role">Orchestration</div>
-      </div>
+  <!-- Exercises -->
+  <div class="section-title">Exercises</div>
+
+  <div class="exercise">
+    <div class="exercise-header">
+      <span class="exercise-number ex1-badge">Exercise 1 &mdash; Build Phase</span>
+    </div>
+    <h3>Review Loop Orchestration</h3>
+    <p>A Blue Maker built a one-click focus timer in Python. A Red-Orange Reviewer ran adversarial code review. Two iterations. Seven bugs caught. App approved.</p>
+    <div class="meta-row">
+      <span class="meta"><strong>Pattern:</strong> Review Loop</span>
+      <span class="meta"><strong>Agents:</strong> Maker + Reviewer</span>
+      <span class="meta"><strong>Iterations:</strong> 2 of 3</span>
+    </div>
+    <div class="link-row">
+      <a href="report-exercise1-build-phase.html" class="link-btn btn-report">Report</a>
+      <a href="timer-demo.html" class="link-btn btn-output">Output</a>
+      <a href="exercise1-outputs.html" class="link-btn btn-code">View Code &amp; Outputs</a>
     </div>
   </div>
 
-  <div class="section">
-    <h3>Key Artifacts</h3>
-    <ul class="artifacts">
-      <li><span class="icon">&#128187;</span><div><div class="file-name">deepspace-build/maker/src/</div><div class="file-desc">Working focus timer app (5 Python files, zero dependencies)</div></div></li>
-      <li><span class="icon">&#128270;</span><div><div class="file-name">deepspace/agent-workspaces/researcher/market-brief.json</div><div class="file-desc">8-app competitive analysis with psychological research</div></div></li>
-      <li><span class="icon">&#128208;</span><div><div class="file-name">deepspace/agent-workspaces/designer/system-architecture.md</div><div class="file-desc">5-component architecture with event bus and crash recovery</div></div></li>
-      <li><span class="icon">&#127912;</span><div><div class="file-name">deepspace/agent-workspaces/designer/ui-schema.json</div><div class="file-desc">Complete UI blueprint: 7 states, 6 screens, 6 data models</div></div></li>
-      <li><span class="icon">&#128203;</span><div><div class="file-name">deepspace/integration/phase1-blueprint.md</div><div class="file-desc">Synthesized blueprint ready for Build Phase approval</div></div></li>
-    </ul>
+  <div class="exercise">
+    <div class="exercise-header">
+      <span class="exercise-number ex2-badge">Exercise 2 &mdash; Research &amp; Design</span>
+    </div>
+    <h3>Parallel Fan-Out</h3>
+    <p>A Yellow Researcher analyzed 8 productivity apps with real market data. A Red-Orange Designer produced architecture and UI blueprints. Manager synthesized both into a build-ready blueprint.</p>
+    <div class="meta-row">
+      <span class="meta"><strong>Pattern:</strong> Fan-Out + Integration</span>
+      <span class="meta"><strong>Agents:</strong> Researcher + Designer</span>
+      <span class="meta"><strong>Output:</strong> Phase 1 Blueprint</span>
+    </div>
+    <div class="link-row">
+      <a href="report-exercise2-research-design.html" class="link-btn btn-report">Report</a>
+      <a href="exercise2-outputs.html" class="link-btn btn-output">Output</a>
+      <a href="exercise2-outputs.html" class="link-btn btn-code">View Research &amp; Architecture</a>
+    </div>
   </div>
+
+  <!-- Agent Team -->
+  <div class="section-title">The Octopus Agent Team</div>
+  <div class="agents">
+    <div class="agent">
+      <div class="dot dot-yellow"></div>
+      <div class="name">Researcher</div>
+      <div class="role">Intelligence</div>
+    </div>
+    <div class="agent">
+      <div class="dot dot-orange"></div>
+      <div class="name">Designer</div>
+      <div class="role">Solutions</div>
+    </div>
+    <div class="agent">
+      <div class="dot dot-blue"></div>
+      <div class="name">Maker</div>
+      <div class="role">Building</div>
+    </div>
+    <div class="agent">
+      <div class="dot dot-green"></div>
+      <div class="name">Marketer</div>
+      <div class="role">Distribution</div>
+    </div>
+    <div class="agent">
+      <div class="dot dot-purple"></div>
+      <div class="name">Manager</div>
+      <div class="role">Orchestration</div>
+    </div>
+  </div>
+
+  <!-- Key Artifacts -->
+  <div class="section-title">Key Artifacts</div>
+  <ul class="artifacts">
+    <li><span class="icon">&#128187;</span><div><div class="file-name">deepspace-build/maker/src/</div><div class="file-desc">Working focus timer app (5 Python files, zero dependencies)</div></div></li>
+    <li><span class="icon">&#128270;</span><div><div class="file-name">deepspace/agent-workspaces/researcher/market-brief.json</div><div class="file-desc">8-app competitive analysis with psychological research</div></div></li>
+    <li><span class="icon">&#128208;</span><div><div class="file-name">deepspace/agent-workspaces/designer/system-architecture.md</div><div class="file-desc">5-component architecture with event bus and crash recovery</div></div></li>
+    <li><span class="icon">&#127912;</span><div><div class="file-name">deepspace/agent-workspaces/designer/ui-schema.json</div><div class="file-desc">Complete UI blueprint: 7 states, 6 screens, 6 data models</div></div></li>
+    <li><span class="icon">&#128203;</span><div><div class="file-name">deepspace/integration/phase1-blueprint.md</div><div class="file-desc">Synthesized blueprint ready for Build Phase approval</div></div></li>
+  </ul>
 
   <div class="footer">
     <p>Jennifer, Abrek &amp; Blossom | March 2026 | Powered by <a href="https://github.com/victordelrosal/octopus">Octopus OS</a> + Claude Opus 4.6</p>
